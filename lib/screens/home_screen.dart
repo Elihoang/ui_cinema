@@ -25,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
       duration: '1h 34m',
       genre: 'Hoạt hình',
       rating: 9.2,
+      posterUrl:
+          'https://lh3.googleusercontent.com/aida-public/AB6AXuBY1IzgmxeBKswCTiVggpkRhc3kPIzRPelvKFQhQ2HaxjlJvi_MAlgkfN26gBk3h38Zln-Nds5j5kMvBFzEQXiwqf3Yc8yYc890YgMSH5s_ATikovdrsyqjlIGP7Sl4CMFvfupc9DXpBaeEyMKioM8xNMt51AA7rNheRIUznZh_dfv6S4J7QZNepT9YKti1ZzimljY62biu6E9DalDUrSEa62bYPNQNdsn5uW2tL-ScR8buMSYri3sHlBTXnEJz8sZ1R-yQp8oJc_k',
       imageUrl:
           'https://lh3.googleusercontent.com/aida-public/AB6AXuBY1IzgmxeBKswCTiVggpkRhc3kPIzRPelvKFQhQ2HaxjlJvi_MAlgkfN26gBk3h38Zln-Nds5j5kMvBFzEQXiwqf3Yc8yYc890YgMSH5s_ATikovdrsyqjlIGP7Sl4CMFvfupc9DXpBaeEyMKioM8xNMt51AA7rNheRIUznZh_dfv6S4J7QZNepT9YKti1ZzimljY62biu6E9DalDUrSEa62bYPNQNdsn5uW2tL-ScR8buMSYri3sHlBTXnEJz8sZ1R-yQp8oJc_k',
     ),
@@ -35,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
       rating: 8.8,
       imageUrl:
           'https://lh3.googleusercontent.com/aida-public/AB6AXuClXHxBdCTAVRexx29mjKDb6IDrmlUxcLUBIKGnqNoE7C_2dDB2m6xAzJxp5S_gsnt4BzCXvtsHnKL6IDPCcQAgG92AolGNhv4J_yc-bmNByWfrfa0JGIgti-tU75DzblaxwWQNij2_fvCfAYVSBm5LKOnqwGlwQ0QIUQAiPvd9V1A9p-00BGiriZvJAf18k0Fsk94P5K5W46Tp3JU04HmAqYpPniuJ3hT2NzNNc_f3lyzdFXcCylaQLleXZlkmp0_pSm3AOiZZC1o',
+      posterUrl:
+          'https://lh3.googleusercontent.com/aida-public/AB6AXuClXHxBdCTAVRexx29mjKDb6IDrmlUxcLUBIKGnqNoE7C_2dDB2m6xAzJxp5S_gsnt4BzCXvtsHnKL6IDPCcQAgG92AolGNhv4J_yc-bmNByWfrfa0JGIgti-tU75DzblaxwWQNij2_fvCfAYVSBm5LKOnqwGlwQ0QIUQAiPvd9V1A9p-00BGiriZvJAf18k0Fsk94P5K5W46Tp3JU04HmAqYpPniuJ3hT2NzNNc_f3lyzdFXcCylaQLleXZlkmp0_pSm3AOiZZC1o',
     ),
     Movie(
       title: 'Ghostbusters',
@@ -43,6 +47,8 @@ class _HomeScreenState extends State<HomeScreen> {
       rating: 8.5,
       imageUrl:
           'https://lh3.googleusercontent.com/aida-public/AB6AXuACEmHCW2oVFa4KjrAGV7awfHnYxlOp0O0AJ9IFO8PM51MbOZSCidapitd5MLg1mC7DG4AldNqOb4bwGt7RxyK5J0DyRe8G83A_gXIuRZcjXIjo34GegZ12GKXRmjr56pgOmHXelVY5v5ZVphlwZdeqhuBH5SdIPsfaGxPijpOEkixzkGZeD4L_tQH2kKOoRVkrKAxsBi4rPM5rZd0Q8gscqnupaXc4lMu5mrXhtH7GC_Uf5tzXBLKQlS4exOQPxcO2a9BCvF2B_b4',
+      posterUrl:
+          'https://lh3.googleusercontent.com/aida-public/AB6AXuACEmHCW2oVFa4KjrAGV7awfHnYxlOp0O0AJ9IFO8PM51MbOZSCidapitd5MLg1mC7DG4AldNqOb4bwGt7RxyK5J0DyRe8G83A_gXIuRZcjXIjo34GegZ12GKXRmjr56pgOmHXelVY5v5ZVphlwZdeqhuBH5SdIPsfaGxPijpOEkixzkGZeD4L_tQH2kKOoRVkrKAxsBi4rPM5rZd0Q8gscqnupaXc4lMu5mrXhtH7GC_Uf5tzXBLKQlS4exOQPxcO2a9BCvF2B_b4',
     ),
     Movie(
       title: 'The First Omen',
@@ -50,6 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
       genre: 'Kinh dị',
       rating: 7.9,
       imageUrl:
+          'https://lh3.googleusercontent.com/aida-public/AB6AXuDJgDCfdTUL6EplTiyCDVsnoKFfJPQopr0SyR0rc1XtR8Zq8hjiA5kXZzuV07CYOyDzh6r7SLi9rToiluxxAi_IqtVTs-vnNsyYWaWb-JaobC_lSgkSxAtHWM9eevJAw9-OMAQcCYUS1Yoh8MsME247Yqvd7I7AnRqy0-sBGoYu-XwTAgUYqt53RAAycdZSpog7tc-HzcIhMve4dMXr8LNU1ZAJmpLymAkyJoUAoo_h_-AG_XpAJsEnGav4JGOGE9aFUo1EoMQFYv0',
+      posterUrl:
           'https://lh3.googleusercontent.com/aida-public/AB6AXuDJgDCfdTUL6EplTiyCDVsnoKFfJPQopr0SyR0rc1XtR8Zq8hjiA5kXZzuV07CYOyDzh6r7SLi9rToiluxxAi_IqtVTs-vnNsyYWaWb-JaobC_lSgkSxAtHWM9eevJAw9-OMAQcCYUS1Yoh8MsME247Yqvd7I7AnRqy0-sBGoYu-XwTAgUYqt53RAAycdZSpog7tc-HzcIhMve4dMXr8LNU1ZAJmpLymAkyJoUAoo_h_-AG_XpAJsEnGav4JGOGE9aFUo1EoMQFYv0',
     ),
   ];

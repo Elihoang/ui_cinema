@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
+import '../../screens/showtime_selection_screen.dart';
 
 class FeaturedMovieCard extends StatelessWidget {
   const FeaturedMovieCard({super.key});
@@ -14,6 +15,8 @@ class FeaturedMovieCard extends StatelessWidget {
       duration: '2h 46m',
       genre: 'Hành động',
       rating: 4.8,
+      posterUrl:
+          'https://lh3.googleusercontent.com/aida-public/AB6AXuBBIfu5whL9_PCAiwUVB_fE8FAm7QUykAeJAUnOZFv4jvJdMZtswbqOahjkUcxEX3aD7Jv8PMg21raKaqbP4NZCU6d_YZUwlFhj5cKLPp44_h7YYPKgwPF81we7K6damZjgtJ13EjX9G7w8JCrCvrMTQ6EN3f0RKICVmVrF1VM3lStzHa6vnQ9QPhWpD9pRLbbGCMiD21MCO4YDr2ajqwBuLxYbhGI5UxUohtNIaC1LA455X6Xi3dxNiyHAf-3ThPSNctmhnCOzGcQ',
     );
 
     return Padding(
@@ -133,7 +136,17 @@ class FeaturedMovieCard extends StatelessWidget {
                           children: [
                             Expanded(
                               child: ElevatedButton.icon(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ShowtimeSelectionScreen(
+                                            movie: featuredMovie,
+                                          ),
+                                    ),
+                                  );
+                                },
                                 icon: const Icon(
                                   Icons.local_activity,
                                   size: 18,

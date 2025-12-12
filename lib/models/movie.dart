@@ -4,6 +4,7 @@ class Movie {
   final String genre;
   final double rating;
   final String imageUrl;
+  final String posterUrl;
   final bool isImax;
 
   Movie({
@@ -12,6 +13,7 @@ class Movie {
     required this.genre,
     required this.rating,
     required this.imageUrl,
+    required this.posterUrl,
     this.isImax = false,
   });
 }

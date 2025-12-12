@@ -15,6 +15,7 @@ class UpcomingMovieItem extends StatelessWidget {
         final movieDetail = Movie(
           title: movie.title,
           imageUrl: movie.imageUrl,
+          posterUrl: movie.imageUrl,
           duration: '2h 30m',
           genre: movie.genre,
           rating: 4.5,
