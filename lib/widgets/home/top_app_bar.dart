@@ -10,26 +10,34 @@ class TopAppBarWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Phần bên trái: icon + text
           Expanded(
             child: Row(
               children: [
-                // Icon Movie
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFec1337).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.movie_outlined,
-                    color: Color(0xFFec1337),
-                    size: 24,
+                // --- SỬA ĐOẠN NÀY ---
+                // Nút mở Menu
+                InkWell(
+                  onTap: () {
+                    // Lệnh mở Drawer từ Scaffold cha
+                    Scaffold.of(context).openDrawer();
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFec1337).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    // Đổi icon thành Menu cho hợp lý, hoặc giữ nguyên movie_outlined
+                    child: const Icon(
+                      Icons.movie_outlined,
+                      color: Color(0xFFec1337),
+                      size: 24,
+                    ),
                   ),
                 ),
+
                 const SizedBox(width: 12),
-                // Text Column
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,9 +68,8 @@ class TopAppBarWidget extends StatelessWidget {
               ],
             ),
           ),
-
-          const SizedBox(width: 16), // khoảng cách giữa trái và phải
-          // Phần bên phải: notification + avatar
+          const SizedBox(width: 16),
+          // Phần bên phải giữ nguyên...
           Row(
             children: [
               IconButton(
