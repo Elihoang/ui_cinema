@@ -77,134 +77,110 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: CustomScrollView(
-          slivers: [
-            // Top App Bar
-            const SliverToBoxAdapter(child: TopAppBarWidget()),
-
-            // Search Bar
-            const SliverToBoxAdapter(child: SearchBarWidget()),
-
-            // Featured Movie
-            const SliverToBoxAdapter(child: FeaturedMovieCard()),
-
-            // Genre Chips
-            const SliverToBoxAdapter(child: GenreChips()),
-
-            // Now Showing Section
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Đang chiếu',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              'Xem tất cả',
-                              style: TextStyle(
-                                color: Color(0xFFec1337),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      height: 240,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: nowShowingMovies.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              right: index < nowShowingMovies.length - 1
-                                  ? 16
-                                  : 0,
-                            ),
-                            child: MovieCard(movie: nowShowingMovies[index]),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Promo Banner
-            const SliverToBoxAdapter(child: PromoBanner()),
-
-            // Coming Soon Section
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Sắp chiếu',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              'Xem lịch',
-                              style: TextStyle(
-                                color: Color(0xFFec1337),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ...upcomingMovies.map(
-                      (movie) => Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: 16,
-                          left: 16,
-                          right: 16,
+    // Xóa Scaffold, chỉ trả về nội dung cuộn
+    return SafeArea(
+      bottom: false,
+      child: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(child: TopAppBarWidget()),
+          const SliverToBoxAdapter(child: SearchBarWidget()),
+          const SliverToBoxAdapter(child: FeaturedMovieCard()),
+          const SliverToBoxAdapter(child: GenreChips()),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Đang chiếu',
+                          style: Theme.of(context).textTheme.headlineMedium,
                         ),
-                        child: UpcomingMovieItem(movie: movie),
-                      ),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            'Xem tất cả',
+                            style: TextStyle(
+                              color: Color(0xFFec1337),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 100),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 240,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: nowShowingMovies.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            right: index < nowShowingMovies.length - 1 ? 16 : 0,
+                          ),
+                          child: MovieCard(movie: nowShowingMovies[index]),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavBarWidget(
-        selectedIndex: _selectedIndex,
-        onItemSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+          ),
+          const SliverToBoxAdapter(child: PromoBanner()),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Sắp chiếu',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            'Xem lịch',
+                            style: TextStyle(
+                              color: Color(0xFFec1337),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ...upcomingMovies.map(
+                    (movie) => Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 16,
+                        left: 16,
+                        right: 16,
+                      ),
+                      child: UpcomingMovieItem(movie: movie),
+                    ),
+                  ),
+                  const SizedBox(height: 100), // Khoảng trống cho BottomBar
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

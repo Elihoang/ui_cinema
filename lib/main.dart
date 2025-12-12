@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'screens/home_screen.dart';
+import './layout/main_layout.dart'; // Đảm bảo bạn đã tạo file này theo hướng dẫn trước
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Cấu hình thanh trạng thái (status bar) trong suốt
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -33,7 +34,7 @@ class CinemaxApp extends StatelessWidget {
           surface: Color(0xFF3a1c20),
           onSurface: Colors.white,
         ),
-        fontFamily: 'DuyHoang',
+        fontFamily: 'DuyHoang', // Font chữ từ file gốc của bạn
         textTheme: const TextTheme(
           headlineLarge: TextStyle(
             fontSize: 24,
@@ -49,7 +50,8 @@ class CinemaxApp extends StatelessWidget {
           bodySmall: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
         ),
       ),
-      home: const HomeScreen(),
+      // Thay đổi quan trọng nhất ở đây: trỏ về MainLayout thay vì HomeScreen
+      home: const MainLayout(),
     );
   }
 }
