@@ -1,4 +1,3 @@
-// widgets/movie_info_header.dart
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 
@@ -52,7 +51,7 @@ class MovieInfoHeader extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          movie.duration,
+                          movie.durationMinutes.toString(),
                           style: TextStyle(
                             color: Colors.grey.shade300,
                             fontSize: 14,
@@ -91,14 +90,14 @@ class MovieInfoHeader extends StatelessWidget {
                           size: 18,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          movie.rating.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        // Text(
+                        //   movie.rating.toString(),
+                        //   style: const TextStyle(
+                        //     color: Colors.white,
+                        //     fontSize: 18,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
                       ],
                     ),
                     const Text(

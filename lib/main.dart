@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import './layout/main_layout.dart'; // Đảm bảo bạn đã tạo file này theo hướng dẫn trước
+import './layout/main_layout.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Cấu hình thanh trạng thái (status bar) trong suốt
+  await dotenv.load(); // load file .env
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -13,6 +15,7 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
+
   runApp(const CinemaxApp());
 }
 

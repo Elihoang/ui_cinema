@@ -3,7 +3,7 @@ import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
 
 class UpcomingMovieItem extends StatelessWidget {
-  final UpcomingMovie movie;
+  final Movie movie;
 
   const UpcomingMovieItem({super.key, required this.movie});
 
@@ -11,19 +11,10 @@ class UpcomingMovieItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Create a Movie object from UpcomingMovie for detail screen
-        final movieDetail = Movie(
-          title: movie.title,
-          imageUrl: movie.imageUrl,
-          posterUrl: movie.imageUrl,
-          duration: '2h 30m',
-          genre: movie.genre,
-          rating: 4.5,
-        );
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MovieDetailScreen(movie: movieDetail),
+            builder: (context) => MovieDetailScreen(movie: movie),
           ),
         );
       },
@@ -43,7 +34,18 @@ class UpcomingMovieItem extends StatelessWidget {
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(movie.imageUrl, fit: BoxFit.cover),
+                child: movie.posterUrl != null && movie.posterUrl!.isNotEmpty
+                    ? Image.network(movie.posterUrl!, fit: BoxFit.cover)
+                    : Container(
+                        color: Colors.grey[800],
+                        child: const Center(
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey,
+                            size: 50,
+                          ),
+                        ),
+                      ),
               ),
             ),
             const SizedBox(width: 16),
@@ -63,7 +65,7 @@ class UpcomingMovieItem extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          movie.releaseDate,
+                          movie.releaseDate.toString(),
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -74,7 +76,7 @@ class UpcomingMovieItem extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          movie.genre,
+                          movie.genre ?? 'Unknown Genre',
                           style: const TextStyle(
                             fontSize: 10,
                             color: Color(0xFF6B7280),
@@ -98,7 +100,7 @@ class UpcomingMovieItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    movie.description,
+                    movie.description ?? 'No description available.',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF9CA3AF),

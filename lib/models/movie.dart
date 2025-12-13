@@ -1,35 +1,40 @@
 class Movie {
+  final String id;
   final String title;
-  final String duration;
-  final String genre;
-  final double rating;
-  final String imageUrl;
-  final String posterUrl;
-  final bool isImax;
+  final String slug;
+  final int durationMinutes;
+  final String? description; // nullable
+  final String? posterUrl;
+  final String? trailerUrl; // nullable
+  final DateTime releaseDate;
+  final String status;
+  final String? genre;
 
   Movie({
+    required this.id,
     required this.title,
-    required this.duration,
-    required this.genre,
-    required this.rating,
-    required this.imageUrl,
-    required this.posterUrl,
-    this.isImax = false,
-  });
-}
-
-class UpcomingMovie {
-  final String title;
-  final String releaseDate;
-  final String genre;
-  final String description;
-  final String imageUrl;
-
-  UpcomingMovie({
-    required this.title,
+    required this.slug,
+    required this.durationMinutes,
+    this.description,
+    this.posterUrl,
+    this.trailerUrl,
     required this.releaseDate,
-    required this.genre,
-    required this.description,
-    required this.imageUrl,
+    required this.status,
+    this.genre,
   });
+
+  factory Movie.fromJson(Map<String, dynamic> json) {
+    return Movie(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      slug: json['slug'] as String,
+      durationMinutes: json['durationMinutes'] as int,
+      description: json['description'] as String?,
+      posterUrl: json['posterUrl'] as String?,
+      trailerUrl: json['trailerUrl'] as String?, // null-safe
+      releaseDate: DateTime.parse(json['releaseDate'] as String),
+      status: json['status'] as String,
+      genre: json['genre'] as String?,
+    );
+  }
 }

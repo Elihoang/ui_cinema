@@ -4,20 +4,12 @@ import '../../screens/movie_detail_screen.dart';
 import '../../screens/showtime_selection_screen.dart';
 
 class FeaturedMovieCard extends StatelessWidget {
-  const FeaturedMovieCard({super.key});
+  final Movie movie;
+  const FeaturedMovieCard({super.key, required this.movie});
 
   @override
   Widget build(BuildContext context) {
-    final featuredMovie = Movie(
-      title: 'Dune: Hành Tinh Cát 2',
-      imageUrl:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuBBIfu5whL9_PCAiwUVB_fE8FAm7QUykAeJAUnOZFv4jvJdMZtswbqOahjkUcxEX3aD7Jv8PMg21raKaqbP4NZCU6d_YZUwlFhj5cKLPp44_h7YYPKgwPF81we7K6damZjgtJ13EjX9G7w8JCrCvrMTQ6EN3f0RKICVmVrF1VM3lStzHa6vnQ9QPhWpD9pRLbbGCMiD21MCO4YDr2ajqwBuLxYbhGI5UxUohtNIaC1LA455X6Xi3dxNiyHAf-3ThPSNctmhnCOzGcQ',
-      duration: '2h 46m',
-      genre: 'Hành động',
-      rating: 4.8,
-      posterUrl:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuBBIfu5whL9_PCAiwUVB_fE8FAm7QUykAeJAUnOZFv4jvJdMZtswbqOahjkUcxEX3aD7Jv8PMg21raKaqbP4NZCU6d_YZUwlFhj5cKLPp44_h7YYPKgwPF81we7K6damZjgtJ13EjX9G7w8JCrCvrMTQ6EN3f0RKICVmVrF1VM3lStzHa6vnQ9QPhWpD9pRLbbGCMiD21MCO4YDr2ajqwBuLxYbhGI5UxUohtNIaC1LA455X6Xi3dxNiyHAf-3ThPSNctmhnCOzGcQ',
-    );
+    final featuredMovie = movie;
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -47,7 +39,19 @@ class FeaturedMovieCard extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.network(featuredMovie.imageUrl, fit: BoxFit.cover),
+                if (featuredMovie.posterUrl != null)
+                  Image.network(featuredMovie.posterUrl!, fit: BoxFit.cover)
+                else
+                  Container(
+                    color: Colors.grey[800],
+                    child: const Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                        size: 50,
+                      ),
+                    ),
+                  ),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -102,7 +106,8 @@ class FeaturedMovieCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                featuredMovie.genre.toUpperCase(),
+                                (featuredMovie.genre ?? 'Unknown')
+                                    .toUpperCase(),
                                 style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
