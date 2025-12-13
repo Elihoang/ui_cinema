@@ -41,7 +41,19 @@ class MovieCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(movie.imageUrl, fit: BoxFit.cover),
+                    if (movie.posterUrl != null)
+                      Image.network(movie.posterUrl!, fit: BoxFit.cover)
+                    else
+                      Container(
+                        color: Colors.grey[800],
+                        child: const Center(
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey,
+                            size: 50,
+                          ),
+                        ),
+                      ),
                     Positioned(
                       top: 8,
                       right: 8,
@@ -63,14 +75,14 @@ class MovieCard extends StatelessWidget {
                               size: 12,
                             ),
                             const SizedBox(width: 4),
-                            Text(
-                              movie.rating.toString(),
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                            // Text(
+                            //   movie.rating.toString(),
+                            //   style: const TextStyle(
+                            //     fontSize: 10,
+                            //     fontWeight: FontWeight.bold,
+                            //     color: Colors.white,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -95,7 +107,7 @@ class MovieCard extends StatelessWidget {
 
             const SizedBox(height: 4),
             Text(
-              '${movie.duration} • ${movie.genre}',
+              '${movie.durationMinutes} • ${movie.genre ?? 'Unknown'}',
               style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
             ),
           ],

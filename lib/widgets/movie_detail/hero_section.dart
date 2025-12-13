@@ -1,4 +1,3 @@
-// widgets/hero_section.dart
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 
@@ -15,7 +14,7 @@ class HeroSection extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage(movie.imageUrl),
+                image: NetworkImage(movie.posterUrl ?? ''),
                 fit: BoxFit.cover,
               ),
             ),

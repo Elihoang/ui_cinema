@@ -1,4 +1,3 @@
-// widgets/movie_detail_content.dart
 import 'package:flutter/material.dart';
 import 'synopsis_section.dart';
 import 'cast_section.dart';

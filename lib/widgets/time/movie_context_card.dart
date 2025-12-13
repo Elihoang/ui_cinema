@@ -17,7 +17,7 @@ class MovieContextCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: NetworkImage(movie.posterUrl),
+                image: NetworkImage(movie.posterUrl ?? ''),
                 fit: BoxFit.cover,
               ),
             ),
@@ -36,7 +36,8 @@ class MovieContextCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${movie.genre} • ${movie.duration}',
+                  '${movie.genre ?? 'Unknown'} • ${movie.durationMinutes} mins',
+
                   style: const TextStyle(
                     color: Color(0xFFC9929B),
                     fontSize: 14,
