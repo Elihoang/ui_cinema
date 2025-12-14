@@ -36,8 +36,7 @@ class MovieContextCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${movie.genre ?? 'Unknown'} • ${movie.durationMinutes} mins',
-
+                  '${movie.category ?? 'Unknown'} • ${movie.durationMinutes} mins',
                   style: const TextStyle(
                     color: Color(0xFFC9929B),
                     fontSize: 14,

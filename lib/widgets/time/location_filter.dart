@@ -41,10 +41,7 @@ class LocationFilter extends StatelessWidget {
                     child: Row(
                       children: [
                         if (i == 0)
-                          const Padding(
-                            padding: EdgeInsets.only(right: 8),
-                            child: Icon(Icons.near_me, size: 18),
-                          ),
+                          const Padding(padding: EdgeInsets.only(right: 8)),
                         Text(
                           label,
                           style: TextStyle(

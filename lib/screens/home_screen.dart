@@ -36,11 +36,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final nowShowing = await MovieService.fetchNowShowing();
-      //final upcoming = await MovieService.fetchUpcoming();
+      final upcoming = await MovieService.fetchUpcoming();
 
       setState(() {
         nowShowingMovies = nowShowing;
-        upcomingMovies = nowShowing;
+        upcomingMovies = upcoming;
         isLoading = false;
       });
     } catch (e) {
