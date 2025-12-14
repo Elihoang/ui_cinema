@@ -3,12 +3,12 @@ class Movie {
   final String title;
   final String slug;
   final int durationMinutes;
-  final String? description; // nullable
+  final String? description;
   final String? posterUrl;
-  final String? trailerUrl; // nullable
+  final String? trailerUrl;
   final DateTime releaseDate;
-  final String status;
-  final String? genre;
+  final String? status;
+  final String? category;
 
   Movie({
     required this.id,
@@ -19,8 +19,8 @@ class Movie {
     this.posterUrl,
     this.trailerUrl,
     required this.releaseDate,
-    required this.status,
-    this.genre,
+    this.status,
+    this.category,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
@@ -31,10 +31,10 @@ class Movie {
       durationMinutes: json['durationMinutes'] as int,
       description: json['description'] as String?,
       posterUrl: json['posterUrl'] as String?,
-      trailerUrl: json['trailerUrl'] as String?, // null-safe
+      trailerUrl: json['trailerUrl'] as String?,
       releaseDate: DateTime.parse(json['releaseDate'] as String),
-      status: json['status'] as String,
-      genre: json['genre'] as String?,
+      status: json['status'] as String?,
+      category: json['category'] as String?,
     );
   }
 }

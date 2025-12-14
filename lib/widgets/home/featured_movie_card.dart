@@ -106,8 +106,8 @@ class FeaturedMovieCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                (featuredMovie.genre ?? 'Unknown')
-                                    .toUpperCase(),
+                                featuredMovie.category?.toUpperCase() ??
+                                    'UNKNOWN',
                                 style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
