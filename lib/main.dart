@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import './layout/main_layout.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'screens/auth/auth_gate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,7 +55,7 @@ class CinemaxApp extends StatelessWidget {
         ),
       ),
       // Thay đổi quan trọng nhất ở đây: trỏ về MainLayout thay vì HomeScreen
-      home: const MainLayout(),
+      home: const AuthGate(),
     );
   }
 }

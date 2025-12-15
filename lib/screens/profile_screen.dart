@@ -5,6 +5,9 @@ import '../widgets/profile/profile_stats.dart';
 import '../widgets/profile/upcoming_tickets_section.dart';
 import '../widgets/profile/account_menu_item.dart';
 import '../widgets/profile/settings_menu_item.dart';
+import '../services/auth/auth_service.dart';
+import '../services/auth/token_storage.dart';
+import '../screens/auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -62,6 +65,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
         seats: 'H05',
       ),
     ];
+  }
+
+  Future<void> _logout() async {
+    try {
+      final storage = TokenStorage();
+      final refreshToken = await storage.getRefreshToken();
+
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await AuthService().logout(refreshToken: refreshToken);
+      }
+
+      await storage.clear();
+
+      if (!mounted) return;
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đăng xuất thất bại: $e'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
   }
 
   @override
@@ -213,7 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: _logout,
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     side: const BorderSide(color: Color(0xFFec1337), width: 1),
