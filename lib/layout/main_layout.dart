@@ -1,3 +1,4 @@
+import 'package:fe_cinema_mobile/screens/product_screen.dart';
 import 'package:flutter/material.dart';
 import '../widgets/home/bottom_nav_bar.dart';
 import '../screens/home_screen.dart';
@@ -34,7 +35,8 @@ class _MainLayoutState extends State<MainLayout> {
           });
         },
       ),
-      const ProfileScreen(),
+      //const ProfileScreen(),
+      const ProductScreen(),
     ];
   }
 

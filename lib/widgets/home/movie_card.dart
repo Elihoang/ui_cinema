@@ -107,7 +107,7 @@ class MovieCard extends StatelessWidget {
 
             const SizedBox(height: 4),
             Text(
-              '${movie.durationMinutes} • ${movie.genre ?? 'Unknown'}',
+              '${movie.durationMinutes} phút • ${movie.category ?? 'Unknown'}',
               style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
             ),
           ],

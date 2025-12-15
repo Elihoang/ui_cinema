@@ -1,3 +1,4 @@
+import 'package:fe_cinema_mobile/untils/formatDate.dart';
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
@@ -65,7 +66,7 @@ class UpcomingMovieItem extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          movie.releaseDate.toString(),
+                          formatDate(movie.releaseDate),
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -76,7 +77,7 @@ class UpcomingMovieItem extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          movie.genre ?? 'Unknown Genre',
+                          movie.category ?? 'Unknown',
                           style: const TextStyle(
                             fontSize: 10,
                             color: Color(0xFF6B7280),
