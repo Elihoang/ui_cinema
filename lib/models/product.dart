@@ -6,6 +6,7 @@ class ProductItem {
   final double price;
   final double? originalPrice;
   final String category;
+  final bool isActive;
   final bool
   isBestSeller; // Thêm trường này (default false nếu backend không có)
 
@@ -17,6 +18,7 @@ class ProductItem {
     required this.price,
     this.originalPrice,
     required this.category,
+    required this.isActive,
     this.isBestSeller = false, // Default false
   });
 
@@ -30,6 +32,7 @@ class ProductItem {
       originalPrice: json['originalPrice'] != null
           ? (json['originalPrice'] as num).toDouble()
           : null,
+      isActive: json['isActive'] as bool,
       category: json['category'] as String,
       isBestSeller:
           json['isBestSeller'] as bool? ??

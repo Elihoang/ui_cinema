@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
 import '../../screens/showtime_selection_screen.dart';
+import '../../extensions/movie_category_extension.dart';
 
 class FeaturedMovieCard extends StatelessWidget {
   final Movie movie;
@@ -106,8 +107,7 @@ class FeaturedMovieCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                featuredMovie.category?.toUpperCase() ??
-                                    'UNKNOWN',
+                                featuredMovie.category.vi.toUpperCase(),
                                 style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -137,59 +137,59 @@ class FeaturedMovieCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ShowtimeSelectionScreen(
-                                            movie: featuredMovie,
-                                          ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.local_activity,
-                                  size: 18,
-                                ),
-                                label: const Text(
-                                  'Đặt Vé Ngay',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFec1337),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.play_arrow,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
+                        // Row(
+                        //   children: [
+                        //     Expanded(
+                        //       child: ElevatedButton.icon(
+                        //         onPressed: () {
+                        //           Navigator.push(
+                        //             context,
+                        //             MaterialPageRoute(
+                        //               builder: (context) =>
+                        //                   ShowtimeSelectionScreen(
+                        //                     movie: featuredMovie,
+                        //                   ),
+                        //             ),
+                        //           );
+                        //         },
+                        //         icon: const Icon(
+                        //           Icons.local_activity,
+                        //           size: 18,
+                        //         ),
+                        //         label: const Text(
+                        //           'Đặt Vé Ngay',
+                        //           style: TextStyle(
+                        //             fontWeight: FontWeight.bold,
+                        //             fontSize: 14,
+                        //           ),
+                        //         ),
+                        //         style: ElevatedButton.styleFrom(
+                        //           backgroundColor: const Color(0xFFec1337),
+                        //           foregroundColor: Colors.white,
+                        //           padding: const EdgeInsets.symmetric(
+                        //             vertical: 12,
+                        //           ),
+                        //           shape: RoundedRectangleBorder(
+                        //             borderRadius: BorderRadius.circular(12),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     const SizedBox(width: 12),
+                        //     Container(
+                        //       width: 40,
+                        //       height: 40,
+                        //       decoration: BoxDecoration(
+                        //         color: Colors.white.withOpacity(0.2),
+                        //         borderRadius: BorderRadius.circular(12),
+                        //       ),
+                        //       child: const Icon(
+                        //         Icons.play_arrow,
+                        //         color: Colors.white,
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),

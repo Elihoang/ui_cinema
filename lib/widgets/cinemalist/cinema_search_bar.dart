@@ -35,10 +35,10 @@ class _CinemaSearchBarState extends State<CinemaSearchBar> {
           hintText: 'Tìm rạp phim...',
           hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
           prefixIcon: const Icon(Icons.search, color: Color(0xFF9CA3AF)),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.mic, color: Color(0xFF9CA3AF)),
-            onPressed: () {},
-          ),
+          // suffixIcon: IconButton(
+          //   icon: const Icon(Icons.mic, color: Color(0xFF9CA3AF)),
+          //   onPressed: () {},
+          // ),
           filled: true,
           fillColor: const Color(0xFF3a1c20),
           border: OutlineInputBorder(
