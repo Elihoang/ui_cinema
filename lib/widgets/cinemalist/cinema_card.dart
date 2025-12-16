@@ -1,25 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart'; // Thêm import này
 import '../../models/cinema.dart';
 import '../cinemalist/cinema_movie_list.dart';
 
 class CinemaCard extends StatelessWidget {
   final Cinema cinema;
-  final String imageUrl;
   final double rating;
-  final List<Map<String, String>> moviesNowShowing;
   final bool isAvailable;
+  final Position? userPosition; // NEW: Vị trí user để tính khoảng cách
 
   const CinemaCard({
     super.key,
     required this.cinema,
-    required this.imageUrl,
-    required this.rating,
-    required this.moviesNowShowing,
+    this.rating = 4.8,
     this.isAvailable = true,
+    this.userPosition, // Có thể null
   });
+
+  // Hàm tính khoảng cách (km) - trả về string hoặc null nếu không tính được
+  String? getDistanceInKm() {
+    if (userPosition == null ||
+        cinema.latitude == null ||
+        cinema.longitude == null) {
+      return null;
+    }
+
+    double distanceInMeters = Geolocator.distanceBetween(
+      userPosition!.latitude,
+      userPosition!.longitude,
+      cinema.latitude!,
+      cinema.longitude!,
+    );
+
+    double distanceInKm = distanceInMeters / 1000;
+    return distanceInKm.toStringAsFixed(1); // Ví dụ: "2.4"
+  }
 
   @override
   Widget build(BuildContext context) {
+    final moviesList = cinema.currentlyShowingMovies
+        .map((m) => m.toMap())
+        .toList();
+    final String? distanceKm = getDistanceInKm();
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF3a1c20),
@@ -33,7 +56,6 @@ class CinemaCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cinema header with image and info
                 Row(
                   children: [
                     Container(
@@ -42,7 +64,10 @@ class CinemaCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         image: DecorationImage(
-                          image: NetworkImage(imageUrl),
+                          image: NetworkImage(
+                            cinema.bannerUrl ??
+                                'https://via.placeholder.com/300x100',
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -86,7 +111,7 @@ class CinemaCard extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        rating.toString(),
+                                        rating.toStringAsFixed(1),
                                         style: const TextStyle(
                                           color: Colors.amber,
                                           fontSize: 12,
@@ -100,7 +125,7 @@ class CinemaCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            cinema.address,
+                            cinema.address ?? 'Chưa có địa chỉ',
                             style: Theme.of(context).textTheme.bodySmall,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -114,23 +139,35 @@ class CinemaCard extends StatelessWidget {
                                 size: 16,
                               ),
                               const SizedBox(width: 4),
-                              Text(
-                                '${cinema.distance.toStringAsFixed(1)} km',
-                                style: const TextStyle(
-                                  color: Color(0xFFec1337),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                              if (distanceKm != null) ...[
+                                Text(
+                                  '$distanceKm km',
+                                  style: const TextStyle(
+                                    color: Color(0xFFec1337),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                '•',
-                                style: TextStyle(
-                                  color: Color(0xFF6B7280),
-                                  fontSize: 10,
+                                const SizedBox(width: 8),
+                                const Text(
+                                  '•',
+                                  style: TextStyle(
+                                    color: Color(0xFF6B7280),
+                                    fontSize: 10,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
+                                const SizedBox(width: 8),
+                              ] else ...[
+                                const SizedBox(width: 8),
+                                const Text(
+                                  '•',
+                                  style: TextStyle(
+                                    color: Color(0xFF6B7280),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
                               if (isAvailable)
                                 const Text(
                                   'Đang mở cửa',
@@ -160,13 +197,13 @@ class CinemaCard extends StatelessWidget {
               ],
             ),
           ),
-          if (isAvailable)
+          if (isAvailable && moviesList.isNotEmpty)
             Column(
               children: [
                 Divider(color: Colors.white.withOpacity(0.05), height: 0),
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: CinemaMovieList(movies: moviesNowShowing),
+                  child: CinemaMovieList(movies: moviesList),
                 ),
               ],
             ),

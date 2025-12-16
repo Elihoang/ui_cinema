@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
-import '../services/movie_service.dart'; // Đảm bảo import đúng
+import '../services/movie_service.dart';
+import '../screens/movie_list_screen.dart';
 import '../widgets/home/top_app_bar.dart';
 import '../widgets/home/search_bar_widget.dart';
 import '../widgets/home/featured_movie_card.dart';
@@ -19,8 +20,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Movie> nowShowingMovies = [];
   List<Movie> upcomingMovies = [];
+  List<Movie> filteredNowShowing = [];
   bool isLoading = true;
   String? errorMessage;
+
+  String _searchQuery = '';
+  String _selectedGenre = 'Tất cả';
 
   @override
   void initState() {
@@ -41,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         nowShowingMovies = nowShowing;
         upcomingMovies = upcoming;
+        filteredNowShowing = nowShowing;
         isLoading = false;
       });
     } catch (e) {
@@ -52,18 +58,48 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Hàm lọc phim theo search + genre
+  void _applyFilters() {
+    List<Movie> temp = nowShowingMovies;
+
+    // Lọc theo thể loại
+    if (_selectedGenre != 'Tất cả') {
+      temp = temp.where((movie) => movie.category == _selectedGenre).toList();
+    }
+
+    // Lọc theo từ khóa tìm kiếm
+    if (_searchQuery.isNotEmpty) {
+      final lowerQuery = _searchQuery.toLowerCase();
+      temp = temp
+          .where((movie) => movie.title.toLowerCase().contains(lowerQuery))
+          .toList();
+    }
+
+    setState(() {
+      filteredNowShowing = temp;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: false,
       child: RefreshIndicator(
-        onRefresh: fetchMovies, // Kéo xuống để refresh
+        onRefresh: fetchMovies,
         color: const Color(0xFFec1337),
         child: CustomScrollView(
           slivers: [
             const SliverToBoxAdapter(child: TopAppBarWidget()),
-            const SliverToBoxAdapter(child: SearchBarWidget()),
-
+            SliverToBoxAdapter(
+              child: SearchBarWidget(
+                onSearchChanged: (query) {
+                  setState(() {
+                    _searchQuery = query.trim();
+                  });
+                  _applyFilters();
+                },
+              ),
+            ),
             // Loading hoặc lỗi toàn màn hình
             if (isLoading)
               SliverFillRemaining(
@@ -101,15 +137,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               )
             else ...[
-              // Featured Movie: chỉ hiển thị nếu có phim đang chiếu
+              // Featured Movie
               if (nowShowingMovies.isNotEmpty)
                 SliverToBoxAdapter(
                   child: FeaturedMovieCard(movie: nowShowingMovies.first),
                 ),
 
-              const SliverToBoxAdapter(child: GenreChips()),
+              // Genre Chips – truyền callback để chọn thể loại
+              SliverToBoxAdapter(
+                child: GenreChips(
+                  selectedGenre: _selectedGenre,
+                  onGenreSelected: (genre) {
+                    setState(() {
+                      _selectedGenre = genre;
+                    });
+                    _applyFilters();
+                  },
+                ),
+              ),
 
-              // Đang chiếu
+              // Đang chiếu – dùng filteredNowShowing thay vì nowShowingMovies
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 24),
@@ -129,7 +176,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                             ),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const MovieListScreen(
+                                      listType: MovieListType.nowShowing,
+                                      title: 'Phim đang chiếu',
+                                    ),
+                                  ),
+                                );
+                              },
                               child: const Text(
                                 'Xem tất cả',
                                 style: TextStyle(
@@ -145,10 +201,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 16),
                       SizedBox(
                         height: 240,
-                        child: nowShowingMovies.isEmpty
+                        child: filteredNowShowing.isEmpty
                             ? Center(
                                 child: Text(
-                                  'Không có phim đang chiếu',
+                                  _searchQuery.isEmpty &&
+                                          _selectedGenre == 'Tất cả'
+                                      ? 'Không có phim đang chiếu'
+                                      : 'Không tìm thấy phim phù hợp',
                                   style: TextStyle(color: Colors.grey),
                                 ),
                               )
@@ -157,16 +216,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
-                                itemCount: nowShowingMovies.length,
+                                itemCount: filteredNowShowing.length,
                                 itemBuilder: (context, index) {
                                   return Padding(
                                     padding: EdgeInsets.only(
-                                      right: index < nowShowingMovies.length - 1
+                                      right:
+                                          index < filteredNowShowing.length - 1
                                           ? 16
                                           : 0,
                                     ),
                                     child: MovieCard(
-                                      movie: nowShowingMovies[index],
+                                      movie: filteredNowShowing[index],
                                     ),
                                   );
                                 },
@@ -179,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SliverToBoxAdapter(child: PromoBanner()),
 
-              // Sắp chiếu
+              // Phần Sắp chiếu giữ nguyên (có thể thêm lọc sau nếu muốn)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -199,7 +259,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                             ),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const MovieListScreen(
+                                      listType: MovieListType.upcoming,
+                                      title: 'Phim sắp chiếu',
+                                    ),
+                                  ),
+                                );
+                              },
                               child: const Text(
                                 'Xem lịch',
                                 style: TextStyle(
@@ -232,9 +301,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: UpcomingMovieItem(movie: movie),
                           ),
                         ),
-                      const SizedBox(
-                        height: 100,
-                      ), // Khoảng trống cho BottomNavBar
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),

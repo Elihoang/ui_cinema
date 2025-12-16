@@ -1,7 +1,8 @@
-import 'package:fe_cinema_mobile/untils/formatDate.dart';
+import 'package:fe_cinema_mobile/utils/formatDate.dart';
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
+import '../../extensions/movie_category_extension.dart';
 
 class UpcomingMovieItem extends StatelessWidget {
   final Movie movie;
@@ -77,7 +78,7 @@ class UpcomingMovieItem extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          movie.category ?? 'Unknown',
+                          movie.category.vi,
                           style: const TextStyle(
                             fontSize: 10,
                             color: Color(0xFF6B7280),

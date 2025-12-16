@@ -36,7 +36,13 @@ class _ProductScreenState extends State<ProductScreen> {
     for (var entry in cart.entries) {
       final item = allProducts.firstWhere(
         (i) => i.id == entry.key,
-        orElse: () => ProductItem(id: '', name: '', price: 0, category: ''),
+        orElse: () => ProductItem(
+          id: '',
+          name: '',
+          price: 0,
+          category: '',
+          isActive: false,
+        ),
       );
       total += item.price * entry.value;
     }
@@ -48,7 +54,13 @@ class _ProductScreenState extends State<ProductScreen> {
     for (var entry in cart.entries) {
       final item = allProducts.firstWhere(
         (i) => i.id == entry.key,
-        orElse: () => ProductItem(id: '', name: '', price: 0, category: ''),
+        orElse: () => ProductItem(
+          id: '',
+          name: '',
+          price: 0,
+          category: '',
+          isActive: false,
+        ),
       );
       if (item.originalPrice != null) {
         total = (total ?? 0) + (item.originalPrice! * entry.value);

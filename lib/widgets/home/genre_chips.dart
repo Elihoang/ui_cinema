@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class GenreChips extends StatefulWidget {
-  const GenreChips({super.key});
+class GenreChips extends StatelessWidget {
+  final String selectedGenre;
+  final Function(String) onGenreSelected;
 
-  @override
-  State<GenreChips> createState() => _GenreChipsState();
-}
-
-class _GenreChipsState extends State<GenreChips> {
-  int _selectedIndex = 0;
+  GenreChips({
+    super.key,
+    required this.selectedGenre,
+    required this.onGenreSelected,
+  });
 
   final List<String> genres = [
     'Tất cả',
@@ -28,12 +28,14 @@ class _GenreChipsState extends State<GenreChips> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: genres.length,
         itemBuilder: (context, index) {
-          final isSelected = _selectedIndex == index;
+          final genre = genres[index];
+          final isSelected = selectedGenre == genre;
+
           return Padding(
             padding: EdgeInsets.only(right: index < genres.length - 1 ? 12 : 0),
             child: ChoiceChip(
               label: Text(
-                genres[index],
+                genre,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
@@ -41,11 +43,7 @@ class _GenreChipsState extends State<GenreChips> {
                 ),
               ),
               selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
+              onSelected: (_) => onGenreSelected(genre),
               backgroundColor: const Color(0xFF3a1c20),
               selectedColor: const Color(0xFFec1337),
               side: BorderSide(

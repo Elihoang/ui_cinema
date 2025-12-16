@@ -1,3 +1,4 @@
+import 'package:fe_cinema_mobile/extensions/movie_category_extension.dart';
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
@@ -100,14 +101,13 @@ class MovieCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
 
-            const SizedBox(height: 4),
             Text(
-              '${movie.durationMinutes} phút • ${movie.category ?? 'Unknown'}',
+              '${movie.durationMinutes} phút • ${movie.category.vi}',
               style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
             ),
           ],

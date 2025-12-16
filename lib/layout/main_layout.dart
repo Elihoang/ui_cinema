@@ -35,8 +35,8 @@ class _MainLayoutState extends State<MainLayout> {
           });
         },
       ),
-      //const ProfileScreen(),
-      const ProductScreen(),
+      const ProfileScreen(),
+      //const ProductScreen(),
     ];
   }
 
