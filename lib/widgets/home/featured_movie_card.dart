@@ -3,6 +3,7 @@ import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
 import '../../screens/showtime_selection_screen.dart';
 import '../../extensions/movie_category_extension.dart';
+import '../other/age_badge.dart';
 
 class FeaturedMovieCard extends StatelessWidget {
   final Movie movie;
@@ -24,7 +25,7 @@ class FeaturedMovieCard extends StatelessWidget {
           );
         },
         child: Container(
-          height: 280,
+          height: 270,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
@@ -88,9 +89,11 @@ class FeaturedMovieCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                'IMAX',
+                                featuredMovie.ageLimit >= 0
+                                    ? '${featuredMovie.ageLimit}+'
+                                    : 'P',
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 8,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -109,7 +112,7 @@ class FeaturedMovieCard extends StatelessWidget {
                               child: Text(
                                 featuredMovie.category.vi.toUpperCase(),
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 8,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -121,7 +124,7 @@ class FeaturedMovieCard extends StatelessWidget {
                         Text(
                           featuredMovie.title,
                           style: const TextStyle(
-                            fontSize: 24,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),

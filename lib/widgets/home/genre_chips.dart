@@ -13,9 +13,10 @@ class GenreChips extends StatelessWidget {
   final List<String> genres = [
     'Tất cả',
     'Hành động',
+    'Kinh dị',
     'Tình cảm',
     'Hài hước',
-    'Kinh dị',
+
     'Hoạt hình',
   ];
 

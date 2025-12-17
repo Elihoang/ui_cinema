@@ -1,14 +1,20 @@
-// widgets/custom_tab_bar.dart
 import 'package:flutter/material.dart';
+import '../../models/movie_detail.dart';
 
 class CustomTabBarDelegate extends SliverPersistentHeaderDelegate {
   final int selectedIndex;
   final Function(int) onTabSelected;
-  final List<String> tabs = ['Thông tin', 'Suất chiếu', 'Đánh giá (1.2k)'];
+  final int reviewCount;
+  List<String> get tabs => [
+    'Thông tin',
+    'Suất chiếu',
+    'Đánh giá${reviewCount > 0 ? ' ($reviewCount)' : ''}',
+  ];
 
   CustomTabBarDelegate({
     required this.selectedIndex,
     required this.onTabSelected,
+    required this.reviewCount,
   });
 
   @override

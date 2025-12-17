@@ -116,7 +116,7 @@ class FeaturedMovieCarouselCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        AgeBadge(ageLimit: movie.agelimit),
+                        AgeBadge(ageLimit: movie.ageLimit),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
