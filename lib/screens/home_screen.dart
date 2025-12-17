@@ -1,3 +1,4 @@
+import 'package:fe_cinema_mobile/extensions/movie_category_extension.dart';
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
 import '../services/movie_service.dart';
@@ -9,6 +10,7 @@ import '../widgets/home/genre_chips.dart';
 import '../widgets/home/movie_card.dart';
 import '../widgets/home/promo_banner.dart';
 import '../widgets/home/upcoming_movie_item.dart';
+import '../widgets/home/featured_movies_carousel.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -64,7 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Lọc theo thể loại
     if (_selectedGenre != 'Tất cả') {
-      temp = temp.where((movie) => movie.category == _selectedGenre).toList();
+      temp = temp
+          .where((movie) => movie.category.vi == _selectedGenre)
+          .toList();
     }
 
     // Lọc theo từ khóa tìm kiếm
@@ -139,8 +143,14 @@ class _HomeScreenState extends State<HomeScreen> {
             else ...[
               // Featured Movie
               if (nowShowingMovies.isNotEmpty)
+                // SliverToBoxAdapter(
+                //   child: FeaturedMovieCard(movie: nowShowingMovies.first),
+                // ),
                 SliverToBoxAdapter(
-                  child: FeaturedMovieCard(movie: nowShowingMovies.first),
+                  child: FeaturedMoviesCarousel(
+                    movies: nowShowingMovies,
+                    interval: const Duration(seconds: 5), // 5 giây đổi phim
+                  ),
                 ),
 
               // Genre Chips – truyền callback để chọn thể loại

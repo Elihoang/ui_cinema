@@ -20,7 +20,7 @@ extension MovieCategoryVN on MovieCategory {
       case MovieCategory.horror:
         return 'Kinh dị';
       case MovieCategory.romance:
-        return 'Lãng mạn';
+        return 'Tình cảm';
       case MovieCategory.sciFi:
         return 'Khoa học viễn tưởng';
       case MovieCategory.thriller:

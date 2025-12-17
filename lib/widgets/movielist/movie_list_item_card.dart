@@ -87,7 +87,7 @@ class MovieListItemCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AgeBadge(ageLimit: movie.agelimit),
+                      AgeBadge(ageLimit: movie.ageLimit),
 
                       const SizedBox(height: 6),
                       Text(

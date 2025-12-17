@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/movie.dart';
+import '../models/movie_detail.dart';
 
 class MovieService {
   static final String baseUrl =
@@ -38,6 +39,25 @@ class MovieService {
       return data.map((e) => Movie.fromJson(e)).toList();
     } else {
       throw Exception('Failed to load upcoming movies');
+    }
+  }
+
+  // Fetch movie detail by ID
+  static Future<MovieDetail> fetchMovieDetail(String movieId) async {
+    final response = await http.get(Uri.parse('$baseUrl/movies/$movieId'));
+    print('Movie Detail API Status Code: ${response.statusCode}');
+    print('Movie Detail Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonBody = json.decode(response.body);
+
+      // If the API wraps response in 'data' field, use jsonBody['data']
+      // Otherwise use jsonBody directly
+      final movieData = jsonBody['data'] ?? jsonBody;
+
+      return MovieDetail.fromJson(movieData);
+    } else {
+      throw Exception('Failed to load movie detail');
     }
   }
 }
