@@ -25,19 +25,6 @@ class FeaturedMoviesCarousel extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  // Navigate to all hot movies
-                },
-                child: const Text(
-                  'Xem tất cả',
-                  style: TextStyle(
-                    color: Color(0xFFec1337),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
             ],
           ),
         ),

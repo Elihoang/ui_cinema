@@ -131,7 +131,7 @@ class FeaturedMovieCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Hành trình huyền thoại của Paul Atreides tiếp tục...',
+                          featuredMovie.description ?? '',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[300],
@@ -140,59 +140,6 @@ class FeaturedMovieCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 12),
-                        // Row(
-                        //   children: [
-                        //     Expanded(
-                        //       child: ElevatedButton.icon(
-                        //         onPressed: () {
-                        //           Navigator.push(
-                        //             context,
-                        //             MaterialPageRoute(
-                        //               builder: (context) =>
-                        //                   ShowtimeSelectionScreen(
-                        //                     movie: featuredMovie,
-                        //                   ),
-                        //             ),
-                        //           );
-                        //         },
-                        //         icon: const Icon(
-                        //           Icons.local_activity,
-                        //           size: 18,
-                        //         ),
-                        //         label: const Text(
-                        //           'Đặt Vé Ngay',
-                        //           style: TextStyle(
-                        //             fontWeight: FontWeight.bold,
-                        //             fontSize: 14,
-                        //           ),
-                        //         ),
-                        //         style: ElevatedButton.styleFrom(
-                        //           backgroundColor: const Color(0xFFec1337),
-                        //           foregroundColor: Colors.white,
-                        //           padding: const EdgeInsets.symmetric(
-                        //             vertical: 12,
-                        //           ),
-                        //           shape: RoundedRectangleBorder(
-                        //             borderRadius: BorderRadius.circular(12),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //     const SizedBox(width: 12),
-                        //     Container(
-                        //       width: 40,
-                        //       height: 40,
-                        //       decoration: BoxDecoration(
-                        //         color: Colors.white.withOpacity(0.2),
-                        //         borderRadius: BorderRadius.circular(12),
-                        //       ),
-                        //       child: const Icon(
-                        //         Icons.play_arrow,
-                        //         color: Colors.white,
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
                       ],
                     ),
                   ),

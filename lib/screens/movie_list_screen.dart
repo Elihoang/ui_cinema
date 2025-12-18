@@ -1,5 +1,3 @@
-// movie_list_screen.dart (cập nhật)
-
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
 import '../services/movie_service.dart';
@@ -26,6 +24,8 @@ class MovieListScreen extends StatefulWidget {
 
 class _MovieListScreenState extends State<MovieListScreen> {
   late Future<List<Movie>> futureMovies;
+  String searchQuery = '';
+  String selectedFilter = 'Tất cả';
 
   @override
   void initState() {
@@ -33,6 +33,58 @@ class _MovieListScreenState extends State<MovieListScreen> {
     futureMovies = widget.listType == MovieListType.nowShowing
         ? MovieService.fetchNowShowing()
         : MovieService.fetchUpcoming();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      searchQuery = query.toLowerCase();
+    });
+  }
+
+  void _onFilterChanged(String filter) {
+    setState(() {
+      selectedFilter = filter;
+    });
+  }
+
+  List<Movie> _filterMovies(List<Movie> movies) {
+    List<Movie> filtered = movies;
+
+    // Lọc theo tìm kiếm
+    if (searchQuery.isNotEmpty) {
+      filtered = filtered.where((movie) {
+        return movie.title.toLowerCase().contains(searchQuery);
+      }).toList();
+    }
+
+    // Lọc theo filter
+    if (selectedFilter != 'Tất cả') {
+      filtered = filtered.where((movie) {
+        switch (selectedFilter) {
+          // case 'Sắp chiếu':
+          //   // Phim sắp chiếu có status = 'upcoming' hoặc releaseDate trong tương lai
+          //   return movie.status?.toLowerCase() == 'upcoming' ||
+          //       movie.releaseDate.isAfter(DateTime.now());
+          case 'Đánh giá cao':
+            // Lọc phim có averageRating >= 4.0
+            return (movie.averageRating ?? 0) >= 4.0;
+          case 'Hành động':
+            // Lọc theo category
+            final categoryName = movie.category.toString().toLowerCase();
+            return categoryName.contains('action') ||
+                categoryName.contains('hành động');
+          case 'Kinh dị':
+            // Lọc theo category
+            final categoryName = movie.category.toString().toLowerCase();
+            return categoryName.contains('horror') ||
+                categoryName.contains('kinh dị');
+          default:
+            return true;
+        }
+      }).toList();
+    }
+
+    return filtered;
   }
 
   @override
@@ -54,9 +106,9 @@ class _MovieListScreenState extends State<MovieListScreen> {
         child: Column(
           children: [
             const SizedBox(height: 8),
-            const MovieListSearchBar(),
+            MovieListSearchBar(onSearchChanged: _onSearchChanged),
             const SizedBox(height: 16),
-            const MovieListFilterChips(),
+            MovieListFilterChips(onFilterChanged: _onFilterChanged),
             const SizedBox(height: 24),
 
             Expanded(
@@ -83,7 +135,8 @@ class _MovieListScreenState extends State<MovieListScreen> {
                     );
                   }
 
-                  final movies = snapshot.data!;
+                  final allMovies = snapshot.data!;
+                  final filteredMovies = _filterMovies(allMovies);
 
                   // Nếu là phim đang chiếu, có thể giữ carousel nổi bật
                   return SingleChildScrollView(
@@ -91,12 +144,16 @@ class _MovieListScreenState extends State<MovieListScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (widget.listType == MovieListType.nowShowing &&
-                            movies.isNotEmpty)
+                            allMovies.isNotEmpty &&
+                            searchQuery.isEmpty &&
+                            selectedFilter == 'Tất cả')
                           FeaturedMoviesCarousel(
-                            movies: movies.take(5).toList(),
+                            movies: allMovies.take(5).toList(),
                           ),
 
-                        if (widget.listType == MovieListType.nowShowing)
+                        if (widget.listType == MovieListType.nowShowing &&
+                            searchQuery.isEmpty &&
+                            selectedFilter == 'Tất cả')
                           const SizedBox(height: 24),
 
                         Padding(
@@ -113,18 +170,32 @@ class _MovieListScreenState extends State<MovieListScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: movies.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 16),
-                                itemBuilder: (context, index) {
-                                  return MovieListItemCard(
-                                    movie: movies[index],
-                                  );
-                                },
-                              ),
+                              filteredMovies.isEmpty
+                                  ? const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(32.0),
+                                        child: Text(
+                                          'Không tìm thấy phim nào',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: filteredMovies.length,
+                                      separatorBuilder: (_, __) =>
+                                          const SizedBox(height: 16),
+                                      itemBuilder: (context, index) {
+                                        return MovieListItemCard(
+                                          movie: filteredMovies[index],
+                                        );
+                                      },
+                                    ),
                             ],
                           ),
                         ),

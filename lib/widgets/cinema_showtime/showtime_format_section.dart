@@ -61,26 +61,21 @@ class ShowtimeFormatSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 2.2,
-          ),
-          itemCount: showtimes.length,
-          itemBuilder: (context, index) {
-            final showtime = showtimes[index];
-            return ShowtimeButtonWidget(
-              time: showtime.time,
-              price: showtime.price,
-              isSoldOut: showtime.isSoldOut,
-              isVip: showtime.isVip,
-              onTap: () => onShowtimeSelected(showtime),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: showtimes.map((showtime) {
+            return SizedBox(
+              width: 85,
+              child: ShowtimeButtonWidget(
+                time: showtime.time,
+                price: showtime.price,
+                isSoldOut: showtime.isSoldOut,
+                isVip: showtime.isVip,
+                onTap: () => onShowtimeSelected(showtime),
+              ),
             );
-          },
+          }).toList(),
         ),
       ],
     );

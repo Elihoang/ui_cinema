@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../models/cinema.dart';
 import '../models/cinema_movies_with_showtimes_response.dart';
+import '../models/cinema/cinema_brand_response.dart';
 
 class CinemaService {
   static final String baseUrl =
@@ -52,5 +53,26 @@ class CinemaService {
     }
 
     return CinemaMoviesWithShowtimesResponse.fromJson(jsonBody);
+  }
+
+  /// Fetch danh sách các hệ thống rạp (brands)
+  static Future<List<CinemaBrandResponse>> fetchCinemaBrands() async {
+    final response = await http.get(Uri.parse('$baseUrl/Cinemas/brands'));
+
+    print('Cinema Brands API Status Code: ${response.statusCode}');
+    print('Cinema Brands Response body: ${response.body}');
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load cinema brands: ${response.statusCode}');
+    }
+
+    final Map<String, dynamic> jsonBody = json.decode(response.body);
+
+    if (jsonBody['success'] != true) {
+      throw Exception(jsonBody['message'] ?? 'Lỗi từ server');
+    }
+
+    final List<dynamic> data = jsonBody['data'] ?? [];
+    return data.map((e) => CinemaBrandResponse.fromJson(e)).toList();
   }
 }

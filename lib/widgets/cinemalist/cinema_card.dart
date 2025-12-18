@@ -9,7 +9,7 @@ class CinemaCard extends StatelessWidget {
   final Cinema cinema;
   final double rating;
   final bool isAvailable;
-  final Position? userPosition; // NEW: Vị trí user để tính khoảng cách
+  final Position? userPosition; 
 
   const CinemaCard({
     super.key,
