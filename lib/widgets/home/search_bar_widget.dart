@@ -1,9 +1,7 @@
-// search_bar_widget.dart (thay toàn bộ)
-
 import 'package:flutter/material.dart';
 
 class SearchBarWidget extends StatelessWidget {
-  final Function(String) onSearchChanged; // Callback khi người dùng gõ
+  final Function(String) onSearchChanged; // Callback
 
   const SearchBarWidget({super.key, required this.onSearchChanged});
 
@@ -27,7 +25,7 @@ class SearchBarWidget extends StatelessWidget {
               child: TextField(
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: 'Tìm kiếm phim, rạp, thể loại...',
+                  hintText: 'Tìm kiếm phim...',
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),

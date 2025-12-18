@@ -272,7 +272,7 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
           reviewCount: reviewCount,
           formatLabel: '2D Phụ đề',
           ageLimit: movie.ageLimit,
-          category: movie.category.name,
+          category: getCategoryDisplayName(movie.category),
           releaseDate: movie.releaseDate,
           showtimes: showtimeSlots,
           onShowtimeSelected: (time) {

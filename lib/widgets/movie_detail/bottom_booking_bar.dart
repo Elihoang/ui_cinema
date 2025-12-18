@@ -1,7 +1,7 @@
-// widgets/bottom_booking_bar.dart
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/cinema_showtime_list_screen.dart';
+import '../../utils/movie_category_parser.dart';
 
 class BottomBookingBar extends StatelessWidget {
   final Movie movie;
@@ -29,25 +29,6 @@ class BottomBookingBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tổng cộng',
-                  style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-                ),
-                const Text(
-                  '190.000đ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 16),
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {
@@ -55,9 +36,10 @@ class BottomBookingBar extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => CinemaShowtimeListScreen(
+                        movieId: movie.id,
                         movieTitle: movie.title,
                         movieInfo:
-                            'T${movie.ageLimit} • ${movie.category.name} • ${movie.durationMinutes}p',
+                            'T${movie.ageLimit} • ${getCategoryDisplayName(movie.category)} • ${movie.durationMinutes}p',
                       ),
                     ),
                   );
