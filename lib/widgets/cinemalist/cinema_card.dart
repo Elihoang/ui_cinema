@@ -9,7 +9,7 @@ class CinemaCard extends StatelessWidget {
   final Cinema cinema;
   final double rating;
   final bool isAvailable;
-  final Position? userPosition; 
+  final Position? userPosition;
 
   const CinemaCard({
     super.key,
@@ -101,28 +101,28 @@ class CinemaCard extends StatelessWidget {
                                       horizontal: 8,
                                       vertical: 4,
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.amber.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 12,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          rating.toStringAsFixed(1),
-                                          style: const TextStyle(
-                                            color: Colors.amber,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    // decoration: BoxDecoration(
+                                    //   color: Colors.amber.withOpacity(0.1),
+                                    //   borderRadius: BorderRadius.circular(4),
+                                    // ),
+                                    // child: Row(
+                                    //   children: [
+                                    //     const Icon(
+                                    //       Icons.star,
+                                    //       color: Colors.amber,
+                                    //       size: 12,
+                                    //     ),
+                                    //     const SizedBox(width: 4),
+                                    // Text(
+                                    //   rating.toStringAsFixed(1),
+                                    //   style: const TextStyle(
+                                    //     color: Colors.amber,
+                                    //     fontSize: 12,
+                                    //     fontWeight: FontWeight.bold,
+                                    //   ),
+                                    // ),
+                                    // ],
+                                    //  ),
                                   ),
                               ],
                             ),

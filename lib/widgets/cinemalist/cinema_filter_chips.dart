@@ -11,7 +11,12 @@ class CinemaFilterChips extends StatefulWidget {
 
 class _CinemaFilterChipsState extends State<CinemaFilterChips> {
   int _selectedIndex = 0;
-  final List<String> filters = ['Hồ Chí Minh', 'Gần nhất', 'Đánh giá cao'];
+  final List<String> filters = [
+    'Tất cả',
+    'Hồ Chí Minh',
+    'Gần nhất',
+    'Đánh giá cao',
+  ];
 
   @override
   Widget build(BuildContext context) {

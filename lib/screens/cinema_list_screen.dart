@@ -65,7 +65,7 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
         final lowerQuery = query.toLowerCase();
         var baseList = cinemas;
 
-        if (_selectedFilterIndex == 0) {
+        if (_selectedFilterIndex == 1) {
           baseList = cinemas.where((c) => c.city == 'Hồ Chí Minh').toList();
         }
 
@@ -165,17 +165,21 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
       _selectedFilterIndex = index;
 
       switch (index) {
-        case 0: // Hồ Chí Minh
+        case 0: // Tất cả
+          filteredCinemas = cinemas;
+          break;
+
+        case 1: // Hồ Chí Minh
           filteredCinemas = cinemas
               .where((c) => c.city == 'Hồ Chí Minh')
               .toList();
           break;
 
-        case 1: // Gần nhất
+        case 2: // Gần nhất
           _sortByNearest(); // Gọi hàm async riêng
           return; // Không setState ở đây vì đã set trong _sortByNearest
 
-        case 2: // Đánh giá cao
+        case 3: // Đánh giá cao
           filteredCinemas = List.from(cinemas);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

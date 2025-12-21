@@ -9,11 +9,19 @@ import '../../models/movie_detail.dart';
 class MovieDetailContent extends StatelessWidget {
   final int tabIndex;
   final MovieDetail movieDetail;
+  final String? currentUserId;
+  final bool canUserReview;
+  final Function(int rating, String comment)? onAddReview;
+  final Function(int rating, String comment)? onEditReview;
 
   const MovieDetailContent({
     super.key,
     required this.tabIndex,
     required this.movieDetail,
+    this.currentUserId,
+    this.canUserReview = false,
+    this.onAddReview,
+    this.onEditReview,
   });
 
   @override
@@ -24,7 +32,14 @@ class MovieDetailContent extends StatelessWidget {
       return const ShowtimesSection();
     } else {
       // Tab Đánh giá: dùng RatingSection với ListView riêng → scroll thoải mái
-      return RatingSection(reviews: movieDetail.reviews);
+      return RatingSection(
+        movieId: movieDetail.id,
+        reviews: movieDetail.reviews,
+        currentUserId: currentUserId,
+        canUserReview: canUserReview,
+        onAddReview: onAddReview,
+        onEditReview: onEditReview,
+      );
     }
   }
 }

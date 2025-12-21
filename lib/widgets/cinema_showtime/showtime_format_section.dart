@@ -87,11 +87,15 @@ class ShowtimeSlot {
   final String price;
   final bool isSoldOut;
   final bool isVip;
+  final String? showtimeId;
+  final String? screenId;
 
   ShowtimeSlot({
     required this.time,
     required this.price,
     this.isSoldOut = false,
     this.isVip = false,
+    this.showtimeId,
+    this.screenId,
   });
 }

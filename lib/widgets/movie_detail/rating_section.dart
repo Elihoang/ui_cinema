@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
 import '../../models/movie_review.dart';
+import './add_review_dialog.dart';
 
 class RatingSection extends StatefulWidget {
+  final String movieId;
   final List<MovieReview> reviews;
+  final String? currentUserId;
+  final bool canUserReview; // Người dùng đã đặt vé chưa
+  final Function(int rating, String comment)? onAddReview;
+  final Function(int rating, String comment)? onEditReview;
 
-  const RatingSection({super.key, required this.reviews});
+  const RatingSection({
+    super.key,
+    required this.movieId,
+    required this.reviews,
+    this.currentUserId,
+    this.canUserReview = false,
+    this.onAddReview,
+    this.onEditReview,
+  });
 
   @override
   State<RatingSection> createState() => _RatingSectionState();
@@ -17,6 +31,22 @@ class _RatingSectionState extends State<RatingSection> {
   @override
   Widget build(BuildContext context) {
     final int totalReviews = widget.reviews.length;
+
+    // Tìm đánh giá của user hiện tại
+    MovieReview? userReview;
+    List<MovieReview> otherReviews = [];
+
+    if (widget.currentUserId != null) {
+      for (var review in widget.reviews) {
+        if (review.userId == widget.currentUserId) {
+          userReview = review;
+        } else {
+          otherReviews.add(review);
+        }
+      }
+    } else {
+      otherReviews = widget.reviews;
+    }
 
     double averageRating = 0.0;
     List<double> ratingDistribution = List.filled(5, 0.0);
@@ -38,11 +68,11 @@ class _RatingSectionState extends State<RatingSection> {
       }
     }
 
-    // Danh sách comments cần hiển thị
-    final displayedReviews = _showAllComments
-        ? widget.reviews
-        : widget.reviews.take(_maxCommentsToShow).toList();
-    final hasMoreComments = totalReviews > _maxCommentsToShow;
+    // Danh sách comments cần hiển thị (không bao gồm review của user)
+    final displayedOtherReviews = _showAllComments
+        ? otherReviews
+        : otherReviews.take(_maxCommentsToShow).toList();
+    final hasMoreComments = otherReviews.length > _maxCommentsToShow;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
@@ -59,12 +89,19 @@ class _RatingSectionState extends State<RatingSection> {
           ),
           const SizedBox(height: 16),
 
-          if (totalReviews == 0)
-            const Text(
-              'Chưa có đánh giá nào',
-              style: TextStyle(color: Colors.grey, fontSize: 15),
-            )
-          else ...[
+          if (totalReviews == 0) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Chưa có đánh giá nào',
+                  style: TextStyle(color: Colors.grey, fontSize: 15),
+                ),
+                // Nút đánh giá (chỉ hiện nếu user đã đăng nhập)
+                if (widget.currentUserId != null) _buildReviewButton(null),
+              ],
+            ),
+          ] else ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -161,18 +198,38 @@ class _RatingSectionState extends State<RatingSection> {
             const SizedBox(height: 32),
             const Divider(color: Colors.grey, thickness: 0.5),
             const SizedBox(height: 16),
-            const Text(
-              'Bình luận',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+
+            // Header với nút đánh giá
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Bình luận',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                // Nút đánh giá (chỉ hiện nếu user đã đăng nhập)
+                if (widget.currentUserId != null)
+                  _buildReviewButton(userReview),
+              ],
             ),
             const SizedBox(height: 16),
 
-            // Danh sách bình luận (giới hạn hoặc full)
-            ...displayedReviews.map(
+            // Hiển thị đánh giá của user (nếu có)
+            if (userReview != null) ...[
+              _buildUserReviewCard(userReview),
+              const SizedBox(height: 16),
+              if (otherReviews.isNotEmpty) ...[
+                const Divider(color: Colors.grey, thickness: 0.3),
+                const SizedBox(height: 16),
+              ],
+            ],
+
+            // Danh sách bình luận của người dùng khác
+            ...displayedOtherReviews.map(
               (review) => Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: _ReviewCard(review: review),
@@ -197,7 +254,7 @@ class _RatingSectionState extends State<RatingSection> {
                   label: Text(
                     _showAllComments
                         ? 'Thu gọn'
-                        : 'Xem thêm ${totalReviews - _maxCommentsToShow} đánh giá',
+                        : 'Xem thêm ${otherReviews.length - _maxCommentsToShow} đánh giá',
                     style: const TextStyle(
                       color: Color(0xFFEC1337),
                       fontWeight: FontWeight.w600,
@@ -207,6 +264,150 @@ class _RatingSectionState extends State<RatingSection> {
               ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildReviewButton(MovieReview? userReview) {
+    final bool hasReviewed = userReview != null;
+    final bool canReview = widget.canUserReview;
+
+    return ElevatedButton.icon(
+      onPressed: () {
+        if (!canReview && !hasReviewed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Bạn cần đặt vé phim này để có thể đánh giá'),
+              backgroundColor: Color(0xFFEC1337),
+            ),
+          );
+          return;
+        }
+        _showReviewDialog(userReview);
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: hasReviewed
+            ? Colors.grey.shade800
+            : const Color(0xFFEC1337),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 0,
+      ),
+      icon: Icon(hasReviewed ? Icons.edit : Icons.rate_review, size: 18),
+      label: Text(
+        hasReviewed ? 'Chỉnh sửa' : 'Viết đánh giá',
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  Widget _buildUserReviewCard(MovieReview review) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEC1337).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFEC1337), width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 20,
+                backgroundColor: Color(0xFFEC1337),
+                child: Icon(Icons.person, color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          review.userName ?? 'Bạn',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEC1337),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'Đánh giá của bạn',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (i) => Icon(
+                          i < review.rating ? Icons.star : Icons.star_border,
+                          color: const Color(0xFFEC1337),
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (review.comment != null && review.comment!.trim().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              review.comment!.trim(),
+              style: TextStyle(
+                color: Colors.grey.shade300,
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showReviewDialog(MovieReview? existingReview) {
+    final bool isEditing = existingReview != null;
+
+    showDialog(
+      context: context,
+      builder: (context) => AddReviewDialog(
+        initialRating: existingReview?.rating,
+        initialComment: existingReview?.comment,
+        isEditing: isEditing,
+        onSubmit: (rating, comment) async {
+          if (isEditing) {
+            if (widget.onEditReview != null) {
+              await widget.onEditReview!(rating, comment);
+            }
+          } else {
+            if (widget.onAddReview != null) {
+              await widget.onAddReview!(rating, comment);
+            }
+          }
+        },
       ),
     );
   }

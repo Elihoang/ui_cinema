@@ -124,12 +124,17 @@ class CinemaCard extends StatelessWidget {
                         isAvailable: slot.isAvailable,
                         onTap: slot.isAvailable
                             ? () {
+                                // TODO: Pass actual screenId and showtimeId from backend
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => SeatSelectionScreen(
+                                      screenId:
+                                          'placeholder-screen-id', // TODO: Get from API
+                                      showtimeId:
+                                          'placeholder-showtime-id', // TODO: Get from API
                                       movieTitle: movie.title,
-                                      cinemaName: cinema.name, // ĐÚNG
+                                      cinemaName: cinema.name,
                                       showtime: slot.time,
                                       date: selectedDate == 'H.Nay'
                                           ? 'Hôm nay'

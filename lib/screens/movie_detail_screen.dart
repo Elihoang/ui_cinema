@@ -51,6 +51,42 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     }
   }
 
+  Future<void> _handleAddReview(int rating, String comment) async {
+    // TODO: Gọi API để thêm review mới
+    print('Add review: rating=$rating, comment=$comment');
+
+    // Tạm thời hiển thị thông báo thành công
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đánh giá của bạn đã được gửi thành công!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // TODO: Refresh movie detail để lấy review mới
+      // await _fetchMovieDetail();
+    }
+  }
+
+  Future<void> _handleEditReview(int rating, String comment) async {
+    // TODO: Gọi API để cập nhật review
+    print('Edit review: rating=$rating, comment=$comment');
+
+    // Tạm thời hiển thị thông báo thành công
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Đánh giá của bạn đã được cập nhật!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // TODO: Refresh movie detail để lấy review đã cập nhật
+      // await _fetchMovieDetail();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,6 +133,12 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                       child: MovieDetailContent(
                         tabIndex: _selectedTabIndex,
                         movieDetail: _movieDetail!,
+                        // TODO: Lấy currentUserId từ auth service
+                        currentUserId: 'temp-user-123', // Tạm thời để test
+                        // TODO: Kiểm tra xem user đã đặt vé phim này chưa
+                        canUserReview: true, // Tạm thời cho phép review
+                        onAddReview: _handleAddReview,
+                        onEditReview: _handleEditReview,
                       ),
                     ),
                   ],
