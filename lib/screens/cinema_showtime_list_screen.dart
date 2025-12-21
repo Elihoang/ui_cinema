@@ -11,6 +11,7 @@ import '../widgets/cinema_showtime/cinema_brand_selector.dart';
 import '../widgets/cinema_showtime/showtime_filter_chips.dart';
 import '../widgets/cinema_showtime/cinema_showtime_card_widget.dart';
 import '../widgets/cinema_showtime/showtime_format_section.dart';
+import 'seat_selection_screen.dart';
 
 class CinemaShowtimeListScreen extends StatefulWidget {
   final String movieId;
@@ -32,7 +33,7 @@ class CinemaShowtimeListScreen extends StatefulWidget {
 class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
   int selectedDateIndex = 0;
   int selectedBrandIndex = 0;
-  List<int> selectedFilterIndices = [0];
+  LocationFilter selectedLocation = LocationFilter.nearest;
 
   MovieCinemaShowtimeResponse? _showtimeData;
   bool _isLoading = false;
@@ -188,14 +189,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
     }
   }
 
-  final List<ShowtimeFilter> filters = [
-    ShowtimeFilter(icon: Icons.location_on, label: 'Gần bạn nhất'),
-  ];
-
-  // Group showtimes by format and audio type
   List<ShowtimeFormat> _getFormatsForCinema(CinemaWithShowtimes cinema) {
-    // For now, we'll create a simple 2D format with all showtimes
-    // You can enhance this logic to group by actual format/audio type if available
     if (cinema.showtimes.isEmpty) {
       return [];
     }
@@ -208,6 +202,8 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
         time: time,
         price: price,
         isVip: showtime.basePrice > 100000,
+        showtimeId: showtime.id,
+        screenId: showtime.screenId,
       );
     }).toList();
 
@@ -264,15 +260,10 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
                     ),
                   ),
                   ShowtimeFilterChips(
-                    filters: filters,
-                    selectedIndices: selectedFilterIndices,
-                    onFilterToggled: (index) {
+                    selectedLocation: selectedLocation,
+                    onLocationChanged: (LocationFilter location) {
                       setState(() {
-                        if (selectedFilterIndices.contains(index)) {
-                          selectedFilterIndices.remove(index);
-                        } else {
-                          selectedFilterIndices.add(index);
-                        }
+                        selectedLocation = location;
                       });
                     },
                   ),
@@ -345,6 +336,49 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
       }).toList();
     }
 
+    // Filter cinemas by selected location
+    switch (selectedLocation) {
+      case LocationFilter.hcm:
+        filteredCinemas = filteredCinemas.where((cinema) {
+          final city = cinema.city?.toLowerCase() ?? '';
+          return city.contains('hcm') ||
+              city.contains('hồ chí minh') ||
+              city.contains('sài gòn') ||
+              city.contains('tp.hcm');
+        }).toList();
+        break;
+      case LocationFilter.hanoi:
+        filteredCinemas = filteredCinemas.where((cinema) {
+          final city = cinema.city?.toLowerCase() ?? '';
+          return city.contains('hà nội') ||
+              city.contains('ha noi') ||
+              city.contains('hanoi');
+        }).toList();
+        break;
+      case LocationFilter.nearest:
+        // Sort by distance if user position is available
+        if (_userPosition != null) {
+          filteredCinemas.sort((a, b) {
+            final distanceA =
+                calculateDistance(
+                  userPosition: _userPosition,
+                  targetLatitude: a.latitude,
+                  targetLongitude: a.longitude,
+                ) ??
+                double.maxFinite;
+            final distanceB =
+                calculateDistance(
+                  userPosition: _userPosition,
+                  targetLatitude: b.latitude,
+                  targetLongitude: b.longitude,
+                ) ??
+                double.maxFinite;
+            return distanceA.compareTo(distanceB);
+          });
+        }
+        break;
+    }
+
     if (filteredCinemas.isEmpty) {
       return Center(
         child: Column(
@@ -388,8 +422,34 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
               // TODO: Handle map tap
             },
             onShowtimeSelected: (showtime) {
-              // TODO: Handle showtime selection
-              print('Selected: ${showtime.time}');
+              if (showtime.showtimeId == null || showtime.screenId == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Thông tin suất chiếu không đầy đủ'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              // Format date for display
+              final selectedDate = dateObjects[selectedDateIndex];
+              final dateStr = DateFormat('dd/MM/yyyy').format(selectedDate);
+
+              // Navigate to seat selection screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SeatSelectionScreen(
+                    screenId: showtime.screenId!,
+                    showtimeId: showtime.showtimeId!,
+                    movieTitle: widget.movieTitle,
+                    cinemaName: cinema.cinemaName,
+                    showtime: showtime.time,
+                    date: dateStr,
+                  ),
+                ),
+              );
             },
           ),
         );

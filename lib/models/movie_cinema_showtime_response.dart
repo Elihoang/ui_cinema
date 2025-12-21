@@ -32,6 +32,7 @@ class CinemaWithShowtimes {
   final String cinemaName;
   final String slug;
   final String? address;
+  final String? city;
   final String? phone;
   final String? bannerUrl;
   final int totalScreens;
@@ -44,6 +45,7 @@ class CinemaWithShowtimes {
     required this.cinemaName,
     required this.slug,
     this.address,
+    this.city,
     this.phone,
     this.bannerUrl,
     required this.totalScreens,
@@ -58,6 +60,7 @@ class CinemaWithShowtimes {
       cinemaName: json['cinemaName'] as String,
       slug: json['slug'] as String,
       address: json['address'] as String?,
+      city: json['city'] as String?,
       phone: json['phone'] as String?,
       bannerUrl: json['bannerUrl'] as String?,
       totalScreens: json['totalScreens'] as int,

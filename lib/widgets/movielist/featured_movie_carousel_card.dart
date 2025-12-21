@@ -90,16 +90,26 @@ class FeaturedMovieCarouselCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Icon(Icons.star, color: Colors.amber, size: 14),
-                        const SizedBox(width: 4),
-                        // Text(
-                        //   movie.rating.toString(),
-                        //   style: const TextStyle(
-                        //     color: Colors.amber,
-                        //     fontSize: 12,
-                        //     fontWeight: FontWeight.bold,
-                        //   ),
-                        // ),
+                        if (movie.averageRating != null) ...[
+                          const Icon(Icons.star, color: Colors.amber, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            movie.averageRating!.toStringAsFixed(1),
+                            style: const TextStyle(
+                              color: Colors.amber,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '(${movie.totalReviews ?? 0})',
+                            style: TextStyle(
+                              color: Colors.grey[300],
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 8),

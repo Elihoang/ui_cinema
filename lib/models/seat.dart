@@ -1,3 +1,5 @@
+/// Represents a seat in a cinema screen
+/// Matches BE_CinePass.Shared.DTOs.Seat.SeatResponseDto
 class Seat {
   final String id;
   final String screenId;
@@ -30,5 +32,18 @@ class Seat {
       qrOrderingCode: json['qrOrderingCode'] as String,
       isActive: json['isActive'] as bool,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'screenId': screenId,
+      'seatRow': seatRow,
+      'seatNumber': seatNumber,
+      'seatCode': seatCode,
+      'seatTypeCode': seatTypeCode,
+      'qrOrderingCode': qrOrderingCode,
+      'isActive': isActive,
+    };
   }
 }

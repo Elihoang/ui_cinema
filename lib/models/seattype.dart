@@ -1,3 +1,5 @@
+/// Represents a seat type with associated surcharge rate
+/// Matches BE_CinePass.Shared.DTOs.SeatType.SeatTypeResponseDto
 class SeatType {
   final String code;
   final String? name;
@@ -11,5 +13,9 @@ class SeatType {
       name: json['name'] as String?,
       surchargeRate: (json['surchargeRate'] as num).toDouble(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'code': code, 'name': name, 'surchargeRate': surchargeRate};
   }
 }

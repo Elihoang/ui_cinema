@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
+import '../../screens/cinema_showtime_list_screen.dart';
 import '../../extensions/movie_category_extension.dart';
 import '../other/age_badge.dart';
 
@@ -25,57 +26,30 @@ class MovieListItemCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF361b20),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           children: [
             // Poster
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Stack(
-                children: [
-                  Image.network(
-                    movie.posterUrl ?? '',
-                    width: 96,
-                    height: 140,
-                    fit: BoxFit.cover,
+              child: Image.network(
+                movie.posterUrl ?? '',
+                width: 96,
+                height: 150,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 96,
+                  height: 150,
+                  color: Colors.black26,
+                  child: const Icon(
+                    Icons.image_not_supported,
+                    color: Colors.white54,
                   ),
-                  Positioned(
-                    top: 4,
-                    left: 4,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.5),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      // child: Text(
-                      //   movie.ageRating,
-                      //   style: const TextStyle(
-                      //     color: Colors.white,
-                      //     fontSize: 10,
-                      //     fontWeight: FontWeight.bold,
-                      //   ),
-                      // ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
+
             const SizedBox(width: 12),
 
             // Movie Info
@@ -119,28 +93,40 @@ class MovieListItemCard extends StatelessWidget {
                       Row(
                         children: [
                           const Icon(Icons.star, color: Colors.amber, size: 16),
-                          const SizedBox(width: 4),
-                          // Text(
-                          //   movie.rating.toString(),
-                          //   style: const TextStyle(
-                          //     color: Colors.white,
-                          //     fontSize: 14,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          const SizedBox(width: 4),
-                          // Text(
-                          //   '(${movie.reviewCount})',
-                          //   style: TextStyle(
-                          //     color: Colors.grey[500],
-                          //     fontSize: 12,
-                          //   ),
-                          // ),
+                          const SizedBox(width: 5),
+                          Text(
+                            movie.averageRating != null
+                                ? movie.averageRating!.toStringAsFixed(1)
+                                : 'N/A',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '(${movie.totalReviews ?? 0})',
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 12,
+                            ),
+                          ),
                         ],
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Navigate to booking
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CinemaShowtimeListScreen(
+                                movieId: movie.id,
+                                movieTitle: movie.title,
+                                movieInfo:
+                                    '${movie.category.vi} • ${movie.durationMinutes} phút',
+                              ),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFec1337),
