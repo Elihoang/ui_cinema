@@ -4,11 +4,12 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/eticket.dart';
 
 class TicketService {
-  static const String baseUrl = 'http://localhost:5081/api';
+  static final String baseUrl =
+      dotenv.env['BASE_URL'] ?? 'http://localhost:5081/api';
   static const _storage = FlutterSecureStorage();
 
   static Future<Map<String, String>> _getHeaders() async {
@@ -24,10 +25,12 @@ class TicketService {
       final parts = token.split('.');
       if (parts.length != 3) return null;
       final payload = json.decode(
-          utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
       return payload['sub']?.toString() ??
           payload['nameidentifier']?.toString() ??
-          payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']?.toString();
+          payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+              ?.toString();
     } catch (e) {
       print('Lỗi decode token: $e');
       return null;
@@ -81,7 +84,8 @@ class TicketService {
 
       final detailJson = json.decode(detailResponse.body);
       if (!(detailJson['success'] as bool? ?? false) ||
-          detailJson['data'] == null) continue;
+          detailJson['data'] == null)
+        continue;
 
       final orderData = detailJson['data'];
       final List<dynamic> orderTickets = orderData['tickets'] ?? [];
@@ -94,52 +98,53 @@ class TicketService {
         final screenJson = showtimeJson?['screen'] as Map<String, dynamic>?;
         final cinemaJson = screenJson?['cinema'] as Map<String, dynamic>?;
 
-          // Thử gọi API ETickets trước
-          final orderTicketId = ot['id'].toString();
-          bool addedReal = false;
-          final ticketResponse = await http.get(
-            Uri.parse('$baseUrl/ETickets/order-ticket/$orderTicketId'),
-            headers: headers,
-          );
-          if (ticketResponse.statusCode == 200) {
-            final ticketJson = json.decode(ticketResponse.body);
-            if (ticketJson['success'] == true && ticketJson['data'] != null) {
-              final List<dynamic> eTickets = ticketJson['data'];
-              for (final j in eTickets) {
-                final Map<String, dynamic> et = j as Map<String, dynamic>;
-                final combined = {
-                  ...et,
-                  'orderTicket': ot,
-                };
-                allTickets.add(ETicket.fromJson(combined));
-                addedReal = true;
-              }
+        // Thử gọi API ETickets trước
+        final orderTicketId = ot['id'].toString();
+        bool addedReal = false;
+        final ticketResponse = await http.get(
+          Uri.parse('$baseUrl/ETickets/order-ticket/$orderTicketId'),
+          headers: headers,
+        );
+        if (ticketResponse.statusCode == 200) {
+          final ticketJson = json.decode(ticketResponse.body);
+          if (ticketJson['success'] == true && ticketJson['data'] != null) {
+            final List<dynamic> eTickets = ticketJson['data'];
+            for (final j in eTickets) {
+              final Map<String, dynamic> et = j as Map<String, dynamic>;
+              final combined = {...et, 'orderTicket': ot};
+              allTickets.add(ETicket.fromJson(combined));
+              addedReal = true;
             }
           }
+        }
 
-          if (addedReal) continue; // đã có ETicket thật
+        if (addedReal) continue; // đã có ETicket thật
 
-          // Fallback: tạo stub từ dữ liệu orderTicket để vẫn có vé hiển thị
-          if (movieJson == null || seatJson == null || showtimeJson == null) {
-            continue;
-          }
-          final startStr = showtimeJson['startTime'] as String?;
-          final startTime = startStr != null ? DateTime.parse(startStr) : DateTime.now();
+        // Fallback: tạo stub từ dữ liệu orderTicket để vẫn có vé hiển thị
+        if (movieJson == null || seatJson == null || showtimeJson == null) {
+          continue;
+        }
+        final startStr = showtimeJson['startTime'] as String?;
+        final startTime = startStr != null
+            ? DateTime.parse(startStr)
+            : DateTime.now();
 
-          final createdStr = orderData['createdAt'] as String?;
-          final createdAt = createdStr != null ? DateTime.parse(createdStr) : DateTime.now();
+        final createdStr = orderData['createdAt'] as String?;
+        final createdAt = createdStr != null
+            ? DateTime.parse(createdStr)
+            : DateTime.now();
 
-          final Map<String, dynamic> combinedStub = {
-            'id': '${orderTicketId}-stub',
-            'orderTicketId': orderTicketId,
-            'ticketCode': 'CHƯA PHÁT HÀNH',
-            'qrData': null,
-            'isUsed': false,
-            'usedAt': null,
-            'createdAt': createdStr ?? DateTime.now().toIso8601String(),
-            'orderTicket': ot,
-          };
-          allTickets.add(ETicket.fromJson(combinedStub));
+        final Map<String, dynamic> combinedStub = {
+          'id': '${orderTicketId}-stub',
+          'orderTicketId': orderTicketId,
+          'ticketCode': 'CHƯA PHÁT HÀNH',
+          'qrData': null,
+          'isUsed': false,
+          'usedAt': null,
+          'createdAt': createdStr ?? DateTime.now().toIso8601String(),
+          'orderTicket': ot,
+        };
+        allTickets.add(ETicket.fromJson(combinedStub));
       }
     }
 
