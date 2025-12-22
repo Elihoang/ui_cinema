@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/product_screen.dart';
 
 class SidebarMenu extends StatelessWidget {
   const SidebarMenu({super.key});
@@ -6,7 +7,7 @@ class SidebarMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: const Color(0xFF221013), // Màu nền giống app
+      backgroundColor: const Color(0xFF221013),
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -53,6 +54,18 @@ class SidebarMenu extends StatelessWidget {
             () {},
           ),
           _buildMenuItem(context, Icons.location_on, 'Rạp chiếu', () {}),
+          _buildMenuItem(
+            context,
+            Icons.fastfood, // hoặc Icons.local_offer
+            'Combo & Đồ ăn',
+            () {
+              Navigator.pop(context); // Đóng drawer trước
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductScreen()),
+              );
+            },
+          ),
           const Divider(color: Colors.white24),
           _buildMenuItem(context, Icons.settings, 'Cài đặt', () {}),
           _buildMenuItem(context, Icons.logout, 'Đăng xuất', () {}),

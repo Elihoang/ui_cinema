@@ -1,8 +1,5 @@
-// lib/widgets/seat/bottom_payment_bar.dart
 import 'package:flutter/material.dart';
-import 'package:fe_cinema_mobile/models/seat.dart';
-import 'package:fe_cinema_mobile/models/booking.dart';
-import 'package:fe_cinema_mobile/screens/payment_screen.dart';
+import '../../models/seat.dart';
 
 class BottomPaymentBar extends StatelessWidget {
   final List<Seat> selectedSeats;
@@ -20,9 +17,43 @@ class BottomPaymentBar extends StatelessWidget {
     required this.date,
   });
 
-  double get total => selectedSeats.fold(0, (sum, seat) => sum + seat.price);
+  // For now, using fixed prices - will be updated when we have actual pricing from backend
+  double get total {
+    double sum = 0;
+    for (var seat in selectedSeats) {
+      final seatType = seat.seatTypeCode?.toUpperCase() ?? 'NORMAL';
+      switch (seatType) {
+        case 'VIP':
+          sum += 150000;
+          break;
+        case 'COUPLE':
+          sum += 200000;
+          break;
+        default:
+          sum += 90000;
+      }
+    }
+    return sum;
+  }
+
+  // Format money with dots as thousand separators (10.000, 90.000, 150.000...)
+  String formatMoney(double amount) {
+    final intAmount = amount.toInt();
+    final str = intAmount.toString();
+    final buffer = StringBuffer();
+
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(str[i]);
+    }
+
+    return buffer.toString();
+  }
+
   List<String> get seatLabels =>
-      selectedSeats.map((s) => s.id).toList()..sort();
+      selectedSeats.map((s) => s.seatCode).toList()..sort();
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +143,7 @@ class BottomPaymentBar extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        '${total.toInt()}',
+                        formatMoney(total),
                         style: const TextStyle(
                           color: Color(0xFFec1337),
                           fontSize: 28,
@@ -139,23 +170,13 @@ class BottomPaymentBar extends StatelessWidget {
               onPressed: seatLabels.isEmpty
                   ? null
                   : () {
-                      final booking = BookingInfo(
-                        movieTitle: movieTitle,
-                        moviePoster: 'https://picsum.photos/300/450',
-                        cinema: cinemaName,
-                        hall: 'Rạp 5',
-                        showtime: showtime,
-                        date: date,
-                        seats: seatLabels,
-                        ticketPrice: total,
-                        comboPrice: 0,
-                        discount: 0,
-                      );
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PaymentScreen(booking: booking),
+                      // TODO: Navigate to payment/combo selection screen
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Đã chọn ${seatLabels.length} ghế: ${seatLabels.join(", ")}',
+                          ),
+                          backgroundColor: const Color(0xFFec1337),
                         ),
                       );
                     },
@@ -173,7 +194,7 @@ class BottomPaymentBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Thanh toán ngay',
+                    'Tiếp tục',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

@@ -20,27 +20,35 @@ class Legend extends StatelessWidget {
           children: [
             _legendItem(
               'Trống',
-              Colors.white.withOpacity(0.1),
-              Colors.white.withOpacity(0.2),
+              const Color.fromARGB(255, 247, 228, 228), // NORMAL seat color
+              const Color.fromARGB(255, 247, 228, 228),
             ),
             const SizedBox(width: 20),
             _legendItem(
               'Đã đặt',
-              Colors.white.withOpacity(0.05),
-              Colors.transparent,
+              const Color(0xFF4A4A4A), // Booked seat color
+              const Color(0xFF2A2A2A),
               icon: Icons.close,
             ),
             const SizedBox(width: 20),
             _legendItem(
               'Đang chọn',
-              const Color(0xFFec1337),
-              const Color(0xFFec1337),
+              const Color(0xFFec1337), // Selected seat color
+              const Color(0xFFBB0A27),
             ),
             const SizedBox(width: 20),
             _legendItem(
               'VIP',
-              Colors.amber.shade900.withOpacity(0.4),
-              Colors.amber.shade600.withOpacity(0.6),
+              const Color(0xFFFFD700), // VIP seat color (gold)
+              const Color(0xFFB8860B),
+              icon: Icons.star,
+            ),
+            const SizedBox(width: 20),
+            _legendItem(
+              'Couple',
+              const Color(0xFFFF69B4), // Couple seat color (pink)
+              const Color(0xFFDB5A8F),
+              icon: Icons.favorite,
             ),
           ],
         ),
@@ -52,7 +60,7 @@ class Legend extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 20,
+          width: 24,
           height: 20,
           decoration: BoxDecoration(
             color: bg,
@@ -60,7 +68,15 @@ class Legend extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
           ),
           child: icon != null
-              ? Icon(icon, size: 12, color: Colors.white.withOpacity(0.5))
+              ? Icon(
+                  icon,
+                  size: 12,
+                  color: icon == Icons.close
+                      ? Colors.white.withOpacity(0.5)
+                      : (icon == Icons.star
+                            ? const Color(0xFFB8860B) // VIP star: dark gold
+                            : Colors.white), // Couple heart: white
+                )
               : null,
         ),
         const SizedBox(width: 8),

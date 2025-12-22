@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SearchBarWidget extends StatelessWidget {
-  const SearchBarWidget({super.key});
+  final Function(String) onSearchChanged; // Callback
+
+  const SearchBarWidget({super.key, required this.onSearchChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +23,14 @@ class SearchBarWidget extends StatelessWidget {
             ),
             Expanded(
               child: TextField(
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: 'Tìm kiếm phim, rạp, thể loại...',
+                  hintText: 'Tìm kiếm phim...',
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
+                onChanged: onSearchChanged, // Gửi query lên HomeScreen
               ),
             ),
             Container(

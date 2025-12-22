@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
 import '../../screens/showtime_selection_screen.dart';
+import '../../extensions/movie_category_extension.dart';
+import '../other/age_badge.dart';
 
 class FeaturedMovieCard extends StatelessWidget {
   final Movie movie;
@@ -23,7 +25,7 @@ class FeaturedMovieCard extends StatelessWidget {
           );
         },
         child: Container(
-          height: 280,
+          height: 270,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
@@ -87,9 +89,11 @@ class FeaturedMovieCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                'IMAX',
+                                featuredMovie.ageLimit >= 0
+                                    ? '${featuredMovie.ageLimit}+'
+                                    : 'P',
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 8,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -106,10 +110,9 @@ class FeaturedMovieCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                featuredMovie.category?.toUpperCase() ??
-                                    'UNKNOWN',
+                                featuredMovie.category.vi.toUpperCase(),
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 8,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -121,14 +124,14 @@ class FeaturedMovieCard extends StatelessWidget {
                         Text(
                           featuredMovie.title,
                           style: const TextStyle(
-                            fontSize: 24,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Hành trình huyền thoại của Paul Atreides tiếp tục...',
+                          featuredMovie.description ?? '',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[300],
@@ -137,59 +140,6 @@ class FeaturedMovieCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ShowtimeSelectionScreen(
-                                            movie: featuredMovie,
-                                          ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.local_activity,
-                                  size: 18,
-                                ),
-                                label: const Text(
-                                  'Đặt Vé Ngay',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFec1337),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.play_arrow,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),

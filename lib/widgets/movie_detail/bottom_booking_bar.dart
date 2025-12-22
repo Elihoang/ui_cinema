@@ -1,8 +1,12 @@
-// widgets/bottom_booking_bar.dart
 import 'package:flutter/material.dart';
+import '../../models/movie.dart';
+import '../../screens/cinema_showtime_list_screen.dart';
+import '../../utils/movie_category_parser.dart';
 
 class BottomBookingBar extends StatelessWidget {
-  const BottomBookingBar({super.key});
+  final Movie movie;
+
+  const BottomBookingBar({super.key, required this.movie});
 
   @override
   Widget build(BuildContext context) {
@@ -25,28 +29,21 @@ class BottomBookingBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tổng cộng',
-                  style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-                ),
-                const Text(
-                  '190.000đ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 16),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CinemaShowtimeListScreen(
+                        movieId: movie.id,
+                        movieTitle: movie.title,
+                        movieInfo:
+                            'T${movie.ageLimit} • ${getCategoryDisplayName(movie.category)} • ${movie.durationMinutes}p',
+                      ),
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.confirmation_number, size: 20),
                 label: const Text(
                   'Đặt vé ngay',

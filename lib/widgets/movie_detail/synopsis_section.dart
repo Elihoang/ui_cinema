@@ -1,12 +1,14 @@
-// widgets/synopsis_section.dart
 import 'package:flutter/material.dart';
 
 class SynopsisSection extends StatelessWidget {
+  final String synopsis;
   final bool isExpanded;
   final VoidCallback onToggle;
+  static const int trimLines = 3; // Số dòng thu gọn
 
   const SynopsisSection({
     super.key,
+    required this.synopsis,
     required this.isExpanded,
     required this.onToggle,
   });
@@ -25,30 +27,59 @@ class SynopsisSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        GestureDetector(
-          onTap: onToggle,
-          child: Text(
-            'Paul Atreides hợp nhất với Chani và người Fremen trong khi trên đường trả thù những kẻ đã hủy diệt gia đình mình. Đối mặt với sự lựa chọn giữa tình yêu của đời mình và số phận của vũ trụ đã biết, anh nỗ lực ngăn chặn một tương lai tồi tệ mà chỉ anh mới có thể thấy trước.',
-            maxLines: isExpanded ? null : 3,
-            overflow: isExpanded ? null : TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.grey.shade300,
-              fontSize: 14,
-              height: 1.5,
-            ),
-          ),
-        ),
-        if (!isExpanded)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              'Xem thêm',
-              style: TextStyle(
-                color: Color(0xFFEC1337),
-                fontWeight: FontWeight.w500,
+
+        // Sử dụng LayoutBuilder để kiểm tra số dòng
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // Tạo TextPainter để đo text
+            final textPainter = TextPainter(
+              text: TextSpan(
+                text: synopsis,
+                style: const TextStyle(fontSize: 14, height: 1.5),
               ),
-            ),
-          ),
+              maxLines: trimLines,
+              textDirection: TextDirection.ltr,
+            );
+
+            // Layout với width thực tế
+            textPainter.layout(maxWidth: constraints.maxWidth);
+            final exceedsMaxLines = textPainter.didExceedMaxLines;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Text với maxLines
+                Text(
+                  synopsis,
+                  maxLines: isExpanded ? null : trimLines,
+                  overflow: isExpanded ? null : TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+
+                // Nút "Xem thêm / Thu gọn"
+                if (exceedsMaxLines)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: GestureDetector(
+                      onTap: onToggle,
+                      child: Text(
+                        isExpanded ? 'Thu gọn' : 'Xem thêm',
+                        style: const TextStyle(
+                          color: Color(0xFFEC1337),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ],
     );
   }

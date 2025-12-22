@@ -1,39 +1,49 @@
-enum SeatStatus { available, booked, selected }
-
-enum SeatType { standard, vip }
-
+/// Represents a seat in a cinema screen
+/// Matches BE_CinePass.Shared.DTOs.Seat.SeatResponseDto
 class Seat {
   final String id;
-  final String row;
-  final int number;
-  final SeatStatus status;
-  final SeatType type;
-  final double price;
+  final String screenId;
+  final String seatRow;
+  final int seatNumber;
+  final String seatCode;
+  final String? seatTypeCode;
+  final String qrOrderingCode;
+  final bool isActive;
 
   Seat({
     required this.id,
-    required this.row,
-    required this.number,
-    required this.status,
-    required this.type,
-    required this.price,
+    required this.screenId,
+    required this.seatRow,
+    required this.seatNumber,
+    required this.seatCode,
+    this.seatTypeCode,
+    required this.qrOrderingCode,
+    required this.isActive,
   });
 
-  Seat copyWith({
-    String? id,
-    String? row,
-    int? number,
-    SeatStatus? status,
-    SeatType? type,
-    double? price,
-  }) {
+  factory Seat.fromJson(Map<String, dynamic> json) {
     return Seat(
-      id: id ?? this.id,
-      row: row ?? this.row,
-      number: number ?? this.number,
-      status: status ?? this.status,
-      type: type ?? this.type,
-      price: price ?? this.price,
+      id: json['id'] as String,
+      screenId: json['screenId'] as String,
+      seatRow: json['seatRow'] as String,
+      seatNumber: json['seatNumber'] as int,
+      seatCode: json['seatCode'] as String,
+      seatTypeCode: json['seatTypeCode'] as String?,
+      qrOrderingCode: json['qrOrderingCode'] as String,
+      isActive: json['isActive'] as bool,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'screenId': screenId,
+      'seatRow': seatRow,
+      'seatNumber': seatNumber,
+      'seatCode': seatCode,
+      'seatTypeCode': seatTypeCode,
+      'qrOrderingCode': qrOrderingCode,
+      'isActive': isActive,
+    };
   }
 }

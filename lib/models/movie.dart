@@ -1,3 +1,6 @@
+import '../enums/movie_category.dart';
+import '../utils/movie_category_parser.dart';
+
 class Movie {
   final String id;
   final String title;
@@ -8,7 +11,10 @@ class Movie {
   final String? trailerUrl;
   final DateTime releaseDate;
   final String? status;
-  final String? category;
+  final MovieCategory category;
+  final int ageLimit;
+  final double? averageRating;
+  final int? totalReviews;
 
   Movie({
     required this.id,
@@ -20,7 +26,10 @@ class Movie {
     this.trailerUrl,
     required this.releaseDate,
     this.status,
-    this.category,
+    required this.category,
+    required this.ageLimit,
+    this.averageRating,
+    this.totalReviews,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
@@ -34,7 +43,12 @@ class Movie {
       trailerUrl: json['trailerUrl'] as String?,
       releaseDate: DateTime.parse(json['releaseDate'] as String),
       status: json['status'] as String?,
-      category: json['category'] as String?,
+      category: parseMovieCategory(json['category'] as String?),
+      ageLimit: json['ageLimit'] as int? ?? 0,
+      averageRating: json['averageRating'] != null
+          ? (json['averageRating'] as num).toDouble()
+          : null,
+      totalReviews: json['totalReviews'] as int?,
     );
   }
 }
