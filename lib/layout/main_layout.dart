@@ -1,4 +1,5 @@
 import 'package:fe_cinema_mobile/screens/product_screen.dart';
+import 'package:fe_cinema_mobile/widgets/qr/qr_scanner_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/home/bottom_nav_bar.dart';
 import '../screens/home_screen.dart';
@@ -43,7 +44,10 @@ class _MainLayoutState extends State<MainLayout> {
   void _onItemTapped(int index) {
     if (index == 2) {
       // Xử lý khi bấm nút QR Code ở giữa
-      print("Open QR Scanner");
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const QrScannerPage()),
+      );
       return;
     }
     setState(() {
