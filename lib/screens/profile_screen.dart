@@ -1,18 +1,21 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
+import '../models/eticket.dart';
 import '../models/user.dart';
-import '../services/auth/token_storage.dart';
 import '../screens/auth/login_screen.dart';
-
+import '../services/auth/token_storage.dart';
+import '../services/ticket_service.dart';
+import '../widgets/profile/account_menu_item.dart';
 import '../widgets/profile/profile_header.dart';
 import '../widgets/profile/profile_stats.dart';
-import '../widgets/profile/upcoming_tickets_section.dart';
-import '../widgets/profile/account_menu_item.dart';
 import '../widgets/profile/settings_menu_item.dart';
+import '../widgets/profile/upcoming_tickets_section.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onRefresh;
+  const ProfileScreen({super.key, this.onRefresh});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -24,6 +27,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isLoading = true;
   String? error;
   bool biometricsEnabled = true;
+  List<ETicket> upcomingTickets = [];
+  bool loadingTickets = false;
+  int watchedMoviesCount = 0;
 
   static const _bg = Color(0xFF120709);
   static const _accent = Color(0xFFEC1337);
@@ -32,6 +38,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadProfileFromToken();
+  }
+
+  // Public method để reload từ bên ngoài
+  void reloadTickets() {
+    if (mounted) {
+      print('[ProfileScreen] Reloading tickets...');
+      _loadUpcomingTickets();
+    }
   }
 
   Map<String, dynamic> _decodeJwtPayload(String token) {
@@ -104,16 +118,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final mail = _pickString(payload, ['email', 'mail', 'upn'], fallback: '');
 
       setState(() {
-        user = User(id: id, name: name, avatar: avatar);
+        user = User(id: id, name: name, avatar: avatar, watchedCount: watchedMoviesCount);
         email = mail;
         isLoading = false;
       });
+      _loadUpcomingTickets();
     } catch (e) {
       if (!mounted) return;
       setState(() {
         error = e.toString();
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadUpcomingTickets() async {
+    print('[ProfileScreen] Loading upcoming tickets...');
+    setState(() => loadingTickets = true);
+    try {
+      final tickets = await TicketService.fetchUpcomingTickets();
+      print('[ProfileScreen] Fetched ${tickets.length} upcoming tickets');
+      
+      // Lấy tất cả vé để đếm số phim đã xem
+      final allTickets = await TicketService.fetchMyTickets();
+      final now = DateTime.now();
+      final watchedTickets = allTickets.where((ticket) => 
+        ticket.isUsed || ticket.showtime.isBefore(now)
+      ).toList();
+      
+      if (mounted) {
+        setState(() {
+          upcomingTickets = tickets.take(5).toList(); // Lấy tối đa 5 vé
+          watchedMoviesCount = watchedTickets.length;
+          loadingTickets = false;
+          // Cập nhật User với số phim đã xem
+          if (user != null) {
+            user = User(
+              id: user!.id,
+              name: user!.name,
+              avatar: user!.avatar,
+              watchedCount: watchedMoviesCount,
+            );
+          }
+        });
+        print('[ProfileScreen] Updated state with ${upcomingTickets.length} tickets and $watchedMoviesCount watched');
+      }
+    } catch (e) {
+      print('[ProfileScreen] Error loading tickets: $e');
+      if (mounted) {
+        setState(() => loadingTickets = false);
+      }
     }
   }
 
@@ -263,7 +317,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
             ProfileStats(user: u),
             const SizedBox(height: 16),
-            const UpcomingTicketsSection(tickets: []),
+            if (loadingTickets)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(color: _accent),
+                ),
+              )
+            else
+              UpcomingTicketsSection(tickets: upcomingTickets),
             const SizedBox(height: 16),
 
             Padding(

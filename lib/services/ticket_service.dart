@@ -2,9 +2,10 @@
 
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import '../models/eticket.dart';
 
 class TicketService {
@@ -98,7 +99,7 @@ class TicketService {
         final screenJson = showtimeJson?['screen'] as Map<String, dynamic>?;
         final cinemaJson = screenJson?['cinema'] as Map<String, dynamic>?;
 
-        // Thử gọi API ETickets trước
+        // Thử gọi API ETickets trước để lấy ticketCode
         final orderTicketId = ot['id'].toString();
         bool addedReal = false;
         final ticketResponse = await http.get(
@@ -111,6 +112,25 @@ class TicketService {
             final List<dynamic> eTickets = ticketJson['data'];
             for (final j in eTickets) {
               final Map<String, dynamic> et = j as Map<String, dynamic>;
+              final ticketCode = et['ticketCode'] as String?;
+              
+              // Gọi API detail để lấy full data (cinema, screen, seat)
+              if (ticketCode != null && ticketCode.isNotEmpty) {
+                final detailResponse = await http.get(
+                  Uri.parse('$baseUrl/ETickets/code/$ticketCode/detail'),
+                  headers: headers,
+                );
+                if (detailResponse.statusCode == 200) {
+                  final detailJson = json.decode(detailResponse.body);
+                  if (detailJson['success'] == true && detailJson['data'] != null) {
+                    allTickets.add(ETicket.fromJson(detailJson['data']));
+                    addedReal = true;
+                    continue;
+                  }
+                }
+              }
+              
+              // Fallback: nếu không lấy được detail, dùng data cơ bản + orderTicket
               final combined = {...et, 'orderTicket': ot};
               allTickets.add(ETicket.fromJson(combined));
               addedReal = true;
@@ -152,5 +172,15 @@ class TicketService {
     allTickets.sort((a, b) => b.showtime.compareTo(a.showtime));
 
     return allTickets;
+  }
+
+  /// LẤY CHỈ VÉ SẮP CHIẾU (Upcoming)
+  static Future<List<ETicket>> fetchUpcomingTickets() async {
+    final allTickets = await fetchMyTickets();
+    final now = DateTime.now();
+    return allTickets
+        .where((ticket) => !ticket.isUsed && ticket.showtime.isAfter(now))
+        .toList()
+      ..sort((a, b) => a.showtime.compareTo(b.showtime)); // Sắp xếp từ gần đến xa
   }
 }

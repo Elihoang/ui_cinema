@@ -101,21 +101,23 @@ class BigUpcomingTicket extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Mã vé', style: TextStyle(color: kTextSecondary, fontSize: 12)),
-                    Text(
-                      ticket.ticketCode,
-                      style: const TextStyle(fontFamily: 'monospace', fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Mã vé', style: TextStyle(color: kTextSecondary, fontSize: 12)),
+                      Text(
+                        ticket.ticketCode,
+                        style: const TextStyle(fontFamily: 'monospace', fontSize: 18, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: () {
-                    final data = (ticket.qrData ?? '').trim();
-                    if (data.isEmpty) {
+                    if (ticket.ticketCode.isEmpty || ticket.ticketCode == 'CHƯA PHÁT HÀNH') {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Mã QR chưa được phát hành')),
                       );
@@ -136,7 +138,7 @@ class BigUpcomingTicket extends StatelessWidget {
                                 width: 220,
                                 height: 220,
                                 child: QrImageView(
-                                  data: data,
+                                  data: ticket.ticketCode,
                                   version: QrVersions.auto,
                                   backgroundColor: Colors.white,
                                 ),
@@ -161,7 +163,7 @@ class BigUpcomingTicket extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kPrimary,
                     foregroundColor: Colors.white, // make label/icon visible on red
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   icon: const Icon(Icons.qr_code_2, size: 24),
