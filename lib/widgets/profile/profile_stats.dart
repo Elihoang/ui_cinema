@@ -6,40 +6,42 @@ class ProfileStats extends StatelessWidget {
 
   const ProfileStats({super.key, required this.user});
 
+  static const _card = Color(0xFF2A1014);
+  static const _border = Color(0xFF351A1E);
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _StatItem(value: user.watchedCount.toString(), label: 'Đã xem'),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white.withOpacity(0.1),
-              ),
-              _StatItem(
-                value: '${user.rewardPoints ~/ 1000}k',
-                label: 'Điểm thưởng',
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white.withOpacity(0.1),
-              ),
-              _StatItem(value: user.voucherCount.toString(), label: 'Voucher'),
-            ],
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: _card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _border.withOpacity(0.8)),
         ),
-        Container(
-          height: 1,
-          color: Colors.white.withOpacity(0.05),
-          margin: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _StatItem(value: user.watchedCount.toString(), label: 'Đã xem'),
+            Container(
+              width: 1,
+              height: 40,
+              color: Colors.white.withOpacity(0.08),
+            ),
+            _StatItem(
+              value: '${user.rewardPoints ~/ 1000}k',
+              label: 'Điểm thưởng',
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: Colors.white.withOpacity(0.08),
+            ),
+            _StatItem(value: user.voucherCount.toString(), label: 'Voucher'),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -53,19 +55,24 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           value,
           style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.65),
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
