@@ -124,6 +124,7 @@ class MovieListItemCard extends StatelessWidget {
                                 movieTitle: movie.title,
                                 movieInfo:
                                     '${movie.category.vi} • ${movie.durationMinutes} phút',
+                                moviePoster: movie.posterUrl,
                               ),
                             ),
                           );

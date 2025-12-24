@@ -11,6 +11,7 @@ class SeatSelectionScreen extends StatefulWidget {
   final String screenId;
   final String showtimeId;
   final String movieTitle;
+  final String? moviePoster;
   final String cinemaName;
   final String showtime;
   final String date;
@@ -20,6 +21,7 @@ class SeatSelectionScreen extends StatefulWidget {
     required this.screenId,
     required this.showtimeId,
     required this.movieTitle,
+    this.moviePoster,
     required this.cinemaName,
     required this.showtime,
     required this.date,
@@ -84,9 +86,11 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
                   .map((id) => seats.firstWhere((s) => s.id == id))
                   .toList(),
               movieTitle: widget.movieTitle,
+              moviePoster: widget.moviePoster,
               cinemaName: widget.cinemaName,
               showtime: widget.showtime,
               date: widget.date,
+              showtimeId: widget.showtimeId,
             ),
           ],
         ),

@@ -17,12 +17,14 @@ class CinemaShowtimeListScreen extends StatefulWidget {
   final String movieId;
   final String movieTitle;
   final String movieInfo;
+  final String? moviePoster; // Add poster URL
 
   const CinemaShowtimeListScreen({
     super.key,
     required this.movieId,
     required this.movieTitle,
     required this.movieInfo,
+    this.moviePoster,
   });
 
   @override
@@ -444,6 +446,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
                     screenId: showtime.screenId!,
                     showtimeId: showtime.showtimeId!,
                     movieTitle: widget.movieTitle,
+                    moviePoster: widget.moviePoster,
                     cinemaName: cinema.cinemaName,
                     showtime: showtime.time,
                     date: dateStr,
