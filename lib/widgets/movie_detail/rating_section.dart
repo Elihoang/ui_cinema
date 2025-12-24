@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/movie_review.dart';
+import '../../models/review/movie_review.dart';
 import './add_review_dialog.dart';
 
 class RatingSection extends StatefulWidget {
@@ -327,12 +327,15 @@ class _RatingSectionState extends State<RatingSection> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          review.userName ?? 'Bạn',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                        Flexible(
+                          child: Text(
+                            review.userName ?? 'Bạn',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 8),

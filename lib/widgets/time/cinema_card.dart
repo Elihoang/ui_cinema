@@ -139,6 +139,7 @@ class CinemaCard extends StatelessWidget {
                                       date: selectedDate == 'H.Nay'
                                           ? 'Hôm nay'
                                           : selectedDate,
+                                      basePrice: 90000, // TODO: Get from API
                                     ),
                                   ),
                                 );

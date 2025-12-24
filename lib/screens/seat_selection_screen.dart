@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/seat.dart';
+import '../models/seattype.dart';
 import '../services/seat_service.dart';
+import '../services/seattype_service.dart';
 import '../widgets/seat/sticky_header.dart';
 import '../widgets/seat/screen_visual.dart';
 import '../widgets/seat/seat_grid.dart';
@@ -15,6 +17,7 @@ class SeatSelectionScreen extends StatefulWidget {
   final String cinemaName;
   final String showtime;
   final String date;
+  final double basePrice; // Base price from showtime
 
   const SeatSelectionScreen({
     super.key,
@@ -25,6 +28,7 @@ class SeatSelectionScreen extends StatefulWidget {
     required this.cinemaName,
     required this.showtime,
     required this.date,
+    required this.basePrice,
   });
 
   @override
@@ -33,6 +37,7 @@ class SeatSelectionScreen extends StatefulWidget {
 
 class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
   List<Seat> seats = [];
+  List<SeatType> seatTypes = [];
   final Set<String> selectedSeats = {};
   bool _isLoading = true;
   String? _errorMessage;
@@ -40,7 +45,23 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchSeats();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    await Future.wait([_fetchSeats(), _fetchSeatTypes()]);
+  }
+
+  Future<void> _fetchSeatTypes() async {
+    try {
+      final fetchedSeatTypes = await SeatTypeService.getAllSeatTypes();
+      setState(() {
+        seatTypes = fetchedSeatTypes;
+      });
+    } catch (e) {
+      // Use default surcharge rates if API fails
+      print('Failed to fetch seat types: $e');
+    }
   }
 
   Future<void> _fetchSeats() async {
@@ -50,8 +71,9 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
     });
 
     try {
-      final fetchedSeats = await SeatService.getActiveSeatsByScreenId(
-        widget.screenId,
+      // Use the Showtimes endpoint to get seats with booking status
+      final fetchedSeats = await SeatService.getSeatsByShowtimeId(
+        widget.showtimeId,
       );
       setState(() {
         seats = fetchedSeats;
@@ -85,12 +107,14 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
               selectedSeats: selectedSeats
                   .map((id) => seats.firstWhere((s) => s.id == id))
                   .toList(),
+              seatTypes: seatTypes,
               movieTitle: widget.movieTitle,
               moviePoster: widget.moviePoster,
               cinemaName: widget.cinemaName,
               showtime: widget.showtime,
               date: widget.date,
               showtimeId: widget.showtimeId,
+              basePrice: widget.basePrice, // Pass showtime base price
             ),
           ],
         ),

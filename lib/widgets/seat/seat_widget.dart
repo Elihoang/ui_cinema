@@ -15,7 +15,8 @@ class SeatWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isActive = seat.isActive;
+    final isAvailable = seat.isAvailable; // Check if seat is available
+    final isBooked = seat.isBooked; // Check if seat is booked
     final seatType = seat.seatTypeCode?.toUpperCase() ?? 'NORMAL';
     final isVip = seatType == 'VIP';
     final isCouple = seatType == 'COUPLE';
@@ -29,7 +30,12 @@ class SeatWidget extends StatelessWidget {
     if (isSelected) {
       mainColor = const Color(0xFFec1337);
       armrestColor = const Color(0xFFBB0A27);
-    } else if (!isActive) {
+    } else if (isBooked) {
+      // Booked seats - gray with X
+      mainColor = const Color(0xFF4A4A4A);
+      armrestColor = const Color(0xFF2A2A2A);
+    } else if (!seat.isActive) {
+      // Inactive seats - gray
       mainColor = const Color(0xFF4A4A4A);
       armrestColor = const Color(0xFF2A2A2A);
     } else if (isVip) {
@@ -47,7 +53,7 @@ class SeatWidget extends StatelessWidget {
     width = isCouple ? 72 : 40;
 
     return GestureDetector(
-      onTap: isActive ? onTap : null,
+      onTap: isAvailable ? onTap : null, // Only available seats can be tapped
       child: SizedBox(
         width: width,
         height: height,
@@ -56,16 +62,18 @@ class SeatWidget extends StatelessWidget {
             mainColor: mainColor,
             armrestColor: armrestColor,
             isSelected: isSelected,
-            isActive: isActive,
+            isActive: isAvailable,
             isCouple: isCouple,
           ),
-          child: Center(child: _buildSeatContent(isActive, seatType)),
+          child: Center(
+            child: _buildSeatContent(isAvailable, isBooked, seatType),
+          ),
         ),
       ),
     );
   }
 
-  Widget? _buildSeatContent(bool isActive, String seatType) {
+  Widget? _buildSeatContent(bool isAvailable, bool isBooked, String seatType) {
     if (isSelected) {
       return Text(
         seat.seatCode,
@@ -77,7 +85,13 @@ class SeatWidget extends StatelessWidget {
       );
     }
 
-    if (!isActive) {
+    if (isBooked) {
+      // Show X for booked seats
+      return Icon(Icons.close, size: 16, color: Colors.white.withOpacity(0.7));
+    }
+
+    if (!isAvailable) {
+      // Show X for inactive seats
       return Icon(Icons.close, size: 12, color: Colors.white.withOpacity(0.5));
     }
 

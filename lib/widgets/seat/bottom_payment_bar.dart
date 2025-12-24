@@ -1,43 +1,70 @@
 import 'package:flutter/material.dart';
 import '../../models/seat.dart';
+import '../../models/seattype.dart';
 import '../../models/booking.dart';
 import '../../screens/payment_screen.dart';
 
 class BottomPaymentBar extends StatelessWidget {
   final List<Seat> selectedSeats;
+  final List<SeatType> seatTypes;
   final String movieTitle;
   final String? moviePoster;
   final String cinemaName;
   final String showtime;
   final String date;
   final String showtimeId; // Added for API integration
+  final double basePrice; // Base price from showtime
 
   const BottomPaymentBar({
     super.key,
     required this.selectedSeats,
+    required this.seatTypes,
     required this.movieTitle,
     this.moviePoster,
     required this.cinemaName,
     required this.showtime,
     required this.date,
     required this.showtimeId,
+    required this.basePrice,
   });
 
-  // For now, using fixed prices - will be updated when we have actual pricing from backend
+  // Get surcharge rate from API data, fallback to defaults if not found
+  double _getSurchargeRate(String? seatTypeCode) {
+    if (seatTypeCode == null) return 1.0;
+
+    // Try to find seat type in fetched data
+    try {
+      final seatType = seatTypes.firstWhere(
+        (st) => st.code.toUpperCase() == seatTypeCode.toUpperCase(),
+      );
+      return seatType.surchargeRate;
+    } catch (e) {
+      // Fallback to default values if not found in API data
+      final type = seatTypeCode.toUpperCase();
+      switch (type) {
+        case 'VIP':
+          return 1.2; // Default +20%
+        case 'COUPLE':
+          return 1.5; // Default +50%
+        case 'NORMAL':
+        default:
+          return 1.0; // Default normal price
+      }
+    }
+  }
+
+  // Calculate price for individual seat based on type
+  // Formula: seatPrice = basePrice × surchargeRate
+  double _getSeatPrice(Seat seat) {
+    final surchargeRate = _getSurchargeRate(seat.seatTypeCode);
+    return basePrice * surchargeRate;
+  }
+
+  // Calculate total price for all selected seats
   double get total {
     double sum = 0;
     for (var seat in selectedSeats) {
-      final seatType = seat.seatTypeCode?.toUpperCase() ?? 'NORMAL';
-      switch (seatType) {
-        case 'VIP':
-          sum += 150000;
-          break;
-        case 'COUPLE':
-          sum += 200000;
-          break;
-        default:
-          sum += 90000;
-      }
+      sum += _getSeatPrice(seat);
     }
     return sum;
   }
