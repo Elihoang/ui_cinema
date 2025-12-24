@@ -3,13 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/seat.dart';
 
-/// Service for managing seats through the backend API
-/// Matches endpoints from BE_CinePass.API.Controllers.SeatsController
 class SeatService {
   static final String baseUrl =
       dotenv.env['BASE_URL'] ?? 'http://localhost:5081/api';
 
-  /// Get all seats for a specific screen
   /// Endpoint: GET /api/Seats/screen/{screenId}
   static Future<List<Seat>> getSeatsByScreenId(String screenId) async {
     final response = await http.get(
@@ -26,8 +23,6 @@ class SeatService {
     }
   }
 
-  /// Get active seats for a specific screen
-  /// Endpoint: GET /api/Seats/screen/{screenId}/active
   static Future<List<Seat>> getActiveSeatsByScreenId(String screenId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/Seats/screen/$screenId/active'),
@@ -43,8 +38,24 @@ class SeatService {
     }
   }
 
+  static Future<List<Seat>> getSeatsByShowtimeId(String showtimeId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/Showtimes/$showtimeId/seats'),
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonBody = json.decode(response.body);
+
+      final List<dynamic>? seats = jsonBody['data']?['seats'];
+      if (seats == null) return [];
+
+      return seats.map((e) => Seat.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load seats for showtime $showtimeId');
+    }
+  }
+
   /// Get seat by ID
-  /// Endpoint: GET /api/Seats/{id}
   static Future<Seat?> getSeatById(String seatId) async {
     final response = await http.get(Uri.parse('$baseUrl/Seats/$seatId'));
 
@@ -60,8 +71,6 @@ class SeatService {
     }
   }
 
-  /// Check if a seat is available for a specific showtime
-  /// Endpoint: GET /api/Seats/{seatId}/available?showtimeId={showtimeId}
   static Future<bool> isSeatAvailable(String seatId, String showtimeId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/Seats/$seatId/available?showtimeId=$showtimeId'),
@@ -77,7 +86,6 @@ class SeatService {
   }
 
   /// Create a new seat
-  /// Endpoint: POST /api/Seats
   static Future<Seat> createSeat(Map<String, dynamic> seatData) async {
     final response = await http.post(
       Uri.parse('$baseUrl/Seats'),
@@ -95,8 +103,6 @@ class SeatService {
     }
   }
 
-  /// Update an existing seat
-  /// Endpoint: PUT /api/Seats/{id}
   static Future<Seat> updateSeat(
     String seatId,
     Map<String, dynamic> seatData,
@@ -117,8 +123,6 @@ class SeatService {
     }
   }
 
-  /// Generate seats automatically for a screen
-  /// Endpoint: POST /api/Seats/generate
   static Future<List<Seat>> generateSeats({
     required String screenId,
     required int rows,
@@ -147,8 +151,6 @@ class SeatService {
     }
   }
 
-  /// Delete a seat
-  /// Endpoint: DELETE /api/Seats/{id}
   static Future<bool> deleteSeat(String seatId) async {
     final response = await http.delete(Uri.parse('$baseUrl/Seats/$seatId'));
 

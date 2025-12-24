@@ -206,6 +206,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
         isVip: showtime.basePrice > 100000,
         showtimeId: showtime.id,
         screenId: showtime.screenId,
+        basePrice: showtime.basePrice,
       );
     }).toList();
 
@@ -450,6 +451,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
                     cinemaName: cinema.cinemaName,
                     showtime: showtime.time,
                     date: dateStr,
+                    basePrice: showtime.basePrice ?? 90000,
                   ),
                 ),
               );

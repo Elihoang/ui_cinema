@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../models/movie_detail.dart';
 import '../../services/movie_service.dart';
+import '../../services/movie_review_service.dart';
+import '../../services/user_service.dart';
 import '../widgets/movie_detail/hero_section.dart';
 import '../widgets/movie_detail/top_navigation.dart';
 import '../widgets/movie_detail/movie_info_header.dart';
@@ -23,17 +25,28 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
   MovieDetail? _movieDetail;
   bool _isLoading = true;
   String? _errorMessage;
+  String? _currentUserId;
+  final MovieReviewService _movieReviewService = MovieReviewService();
 
   @override
   void initState() {
     super.initState();
     _fetchMovieDetail();
+    _fetchCurrentUser();
+  }
+
+  Future<void> _fetchCurrentUser() async {
+    final userId = await UserService.getUserId();
+    if (mounted) {
+      setState(() {
+        _currentUserId = userId;
+      });
+    }
   }
 
   Future<void> _fetchMovieDetail() async {
     try {
       final movieDetail = await MovieService.fetchMovieDetail(widget.movie.id);
-      print(movieDetail.id);
       if (mounted) {
         setState(() {
           _movieDetail = movieDetail;
@@ -52,39 +65,49 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
   }
 
   Future<void> _handleAddReview(int rating, String comment) async {
-    // TODO: Gọi API để thêm review mới
-    print('Add review: rating=$rating, comment=$comment');
-
-    // Tạm thời hiển thị thông báo thành công
-    if (mounted) {
+    if (_currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Đánh giá của bạn đã được gửi thành công!'),
-          backgroundColor: Colors.green,
+          content: Text('Vui lòng đăng nhập để đánh giá'),
+          backgroundColor: Colors.red,
         ),
       );
+      return;
+    }
 
-      // TODO: Refresh movie detail để lấy review mới
-      // await _fetchMovieDetail();
+    try {
+      await _movieReviewService.createReview(widget.movie.id, rating, comment);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đánh giá của bạn đã được gửi thành công!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Refresh movie detail to get new review
+        await _fetchMovieDetail();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   Future<void> _handleEditReview(int rating, String comment) async {
-    // TODO: Gọi API để cập nhật review
-    print('Edit review: rating=$rating, comment=$comment');
-
-    // Tạm thời hiển thị thông báo thành công
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đánh giá của bạn đã được cập nhật!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      // TODO: Refresh movie detail để lấy review đã cập nhật
-      // await _fetchMovieDetail();
-    }
+    // Backend chưa hỗ trợ update review
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Tính năng chỉnh sửa đánh giá đang được phát triển'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   @override
@@ -133,10 +156,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                       child: MovieDetailContent(
                         tabIndex: _selectedTabIndex,
                         movieDetail: _movieDetail!,
-                        // TODO: Lấy currentUserId từ auth service
-                        currentUserId: 'temp-user-123', // Tạm thời để test
-                        // TODO: Kiểm tra xem user đã đặt vé phim này chưa
-                        canUserReview: true, // Tạm thời cho phép review
+                        currentUserId: _currentUserId,
+                        canUserReview: true,
                         onAddReview: _handleAddReview,
                         onEditReview: _handleEditReview,
                       ),

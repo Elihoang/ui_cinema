@@ -89,6 +89,7 @@ class ShowtimeSlot {
   final bool isVip;
   final String? showtimeId;
   final String? screenId;
+  final double? basePrice; // Actual price from API
 
   ShowtimeSlot({
     required this.time,
@@ -97,5 +98,6 @@ class ShowtimeSlot {
     this.isVip = false,
     this.showtimeId,
     this.screenId,
+    this.basePrice,
   });
 }
