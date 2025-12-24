@@ -37,13 +37,18 @@ class ETicket {
   });
 
   factory ETicket.fromJson(Map<String, dynamic> json) {
-    // Lấy nested data an toàn
+    // Lấy data từ các nguồn khác nhau
     final orderTicket = json['orderTicket'] as Map<String, dynamic>?;
     final showtimeJson = orderTicket?['showtime'] as Map<String, dynamic>?;
     final movieJson = showtimeJson?['movie'] as Map<String, dynamic>?;
-    final screenJson = showtimeJson?['screen'] as Map<String, dynamic>?;
-    final cinemaJson = screenJson?['cinema'] as Map<String, dynamic>?;
-    final seatJson = orderTicket?['seat'] as Map<String, dynamic>?;
+    
+    // Cinema, screen, seat có thể ở top level (từ API detail) hoặc nested
+    final cinemaJson = json['cinema'] as Map<String, dynamic>? 
+        ?? showtimeJson?['screen']?['cinema'] as Map<String, dynamic>?;
+    final screenJson = json['screen'] as Map<String, dynamic>? 
+        ?? showtimeJson?['screen'] as Map<String, dynamic>?;
+    final seatJson = json['seat'] as Map<String, dynamic>? 
+        ?? orderTicket?['seat'] as Map<String, dynamic>?;
 
     // Parse startTime safely to avoid null cast errors
     final startTimeStr = showtimeJson?['startTime'] as String?;
@@ -77,7 +82,7 @@ class ETicket {
               ageLimit: 0,
             ),
       cinema: cinemaJson != null
-          ? Cinema.fromJson(cinemaJson)
+          ? _parseCinema(cinemaJson)
           : Cinema(
               id: 'unknown',
               name: 'Rạp không xác định',
@@ -91,6 +96,34 @@ class ETicket {
       screenName: screenJson?['name'] as String? ?? 'Không xác định',
       seatCode: seatJson?['seatCode'] as String? ?? 'N/A',
       showtime: parsedShowtime,
+    );
+  }
+
+  // Helper để parse Cinema an toàn (xử lý cả data đầy đủ và data rút gọn)
+  static Cinema _parseCinema(Map<String, dynamic> json) {
+    return Cinema(
+      id: (json['id'] ?? 'unknown').toString(),
+      name: (json['name'] ?? 'Rạp không xác định').toString(),
+      slug: json['slug'] as String? ?? 'unknown',
+      description: json['description'] as String?,
+      address: json['address'] as String?,
+      city: json['city'] as String?,
+      phone: json['phone'] as String?,
+      email: json['email'] as String?,
+      website: json['website'] as String?,
+      latitude: json['latitude'] as double?,
+      longitude: json['longitude'] as double?,
+      bannerUrl: json['bannerUrl'] as String?,
+      totalScreens: json['totalScreens'] as int? ?? 0,
+      facilities: (json['facilities'] as List<dynamic>?)?.cast<String>(),
+      isActive: json['isActive'] as bool? ?? true,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : DateTime.now(),
+      currentlyShowingMovies: const [],
     );
   }
 
@@ -118,4 +151,7 @@ class ETicket {
       isUsed || showtime.isBefore(DateTime.now())
           ? ETicketStatus.history
           : ETicketStatus.upcoming;
+
+  /// QR data để quét - sử dụng ticketCode
+  String get qrDataForScan => ticketCode;
 }

@@ -11,7 +11,8 @@ const kSurfaceBorder = Color(0xFF482329);
 const kTextSecondary = Color(0xFFC9929B);
 
 class MyTicketScreen extends StatefulWidget {
-  const MyTicketScreen({super.key});
+  final VoidCallback? onNavigateToHome;
+  const MyTicketScreen({super.key, this.onNavigateToHome});
 
   @override
   State<MyTicketScreen> createState() => _MyTicketScreenState();
@@ -67,16 +68,35 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
         bottom: false,
         child: Column(
           children: [
-            // Tiêu đề
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 44, 16, 8),
-              child: Text(
-                'Vé của tôi',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+            // Header với nút back
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () {
+                      if (widget.onNavigateToHome != null) {
+                        widget.onNavigateToHome!();
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        'Vé của tôi',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48), // Cân bằng với nút back
+                ],
               ),
             ),
 
