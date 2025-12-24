@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import '../../models/seat.dart';
+import '../../models/booking.dart';
+import '../../screens/payment_screen.dart';
 
 class BottomPaymentBar extends StatelessWidget {
   final List<Seat> selectedSeats;
   final String movieTitle;
+  final String? moviePoster;
   final String cinemaName;
   final String showtime;
   final String date;
+  final String showtimeId; // Added for API integration
 
   const BottomPaymentBar({
     super.key,
     required this.selectedSeats,
     required this.movieTitle,
+    this.moviePoster,
     required this.cinemaName,
     required this.showtime,
     required this.date,
+    required this.showtimeId,
   });
 
   // For now, using fixed prices - will be updated when we have actual pricing from backend
@@ -170,13 +176,27 @@ class BottomPaymentBar extends StatelessWidget {
               onPressed: seatLabels.isEmpty
                   ? null
                   : () {
-                      // TODO: Navigate to payment/combo selection screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Đã chọn ${seatLabels.length} ghế: ${seatLabels.join(", ")}',
-                          ),
-                          backgroundColor: const Color(0xFFec1337),
+                      // Navigate to payment screen with booking info
+                      final booking = BookingInfo(
+                        movieTitle: movieTitle,
+                        moviePoster: moviePoster ?? '',
+                        cinema: cinemaName,
+                        hall: '', // TODO: Pass from parent if needed
+                        showtime: showtime,
+                        date: date,
+                        seats: seatLabels,
+                        ticketPrice: total,
+                        comboPrice: 0, // Will be updated after combo selection
+                        discount: 0,
+                        showtimeId: showtimeId,
+                        seatIds: selectedSeats.map((s) => s.id).toList(),
+                        products: [], // Will be added in combo selection screen
+                      );
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaymentScreen(booking: booking),
                         ),
                       );
                     },
