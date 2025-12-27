@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/cinema_showtime_list_screen.dart';
-import '../../utils/movie_category_parser.dart';
+import '../../extensions/movie_category_extension.dart'; // Import extension .vi
 
 class BottomBookingBar extends StatelessWidget {
   final Movie movie;
@@ -39,7 +39,7 @@ class BottomBookingBar extends StatelessWidget {
                         movieId: movie.id,
                         movieTitle: movie.title,
                         movieInfo:
-                            'T${movie.ageLimit} • ${getCategoryDisplayName(movie.category)} • ${movie.durationMinutes}p',
+                            'T${movie.ageLimit} • ${movie.category.vi} • ${movie.durationMinutes}p',
                         moviePoster: movie.posterUrl,
                       ),
                     ),

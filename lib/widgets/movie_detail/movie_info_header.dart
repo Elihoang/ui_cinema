@@ -1,9 +1,8 @@
-// widgets/movie_detail/movie_info_header.dart
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
-import '../../widgets/other/age_badge.dart'; // Widget badge độ tuổi
-import '../../extensions/movie_category_extension.dart'; // Extension tiếng Việt cho category
-import '../../utils/formatDate.dart'; // Helper format ngày
+import '../../widgets/other/age_badge.dart';
+import '../../extensions/movie_category_extension.dart';
+import '../../utils/formatDate.dart';
 
 class MovieInfoHeader extends StatelessWidget {
   final Movie movie;
@@ -15,10 +14,9 @@ class MovieInfoHeader extends StatelessWidget {
     return '${movie.durationMinutes} phút';
   }
 
-  // Năm phát hành (hoặc ngày đầy đủ nếu muốn)
+  // Năm phát hành
   String get releaseYear {
-    return formatDate(movie.releaseDate); // Ví dụ: 27/05/2022
-    // Nếu chỉ muốn năm: DateFormat('yyyy').format(movie.releaseDate)
+    return formatDate(movie.releaseDate);
   }
 
   @override
@@ -55,9 +53,7 @@ class MovieInfoHeader extends StatelessWidget {
                       runSpacing: 10,
                       alignment: WrapAlignment.start,
                       children: [
-                        // Badge phân loại độ tuổi (P, T13, T16, T18)
                         AgeBadge(ageLimit: movie.ageLimit),
-
                         // Thời lượng
                         Text(
                           formattedDuration,
@@ -67,7 +63,6 @@ class MovieInfoHeader extends StatelessWidget {
                           ),
                         ),
 
-                        // Dấu phân cách
                         Text(
                           '•',
                           style: TextStyle(
@@ -76,7 +71,6 @@ class MovieInfoHeader extends StatelessWidget {
                           ),
                         ),
 
-                        // Năm phát hành
                         Text(
                           releaseYear,
                           style: const TextStyle(
@@ -91,25 +85,14 @@ class MovieInfoHeader extends StatelessWidget {
               ),
 
               const SizedBox(width: 16),
-
-              // Có thể thêm IMDb rating sau này
-              // Container(... IMDb box ...)
             ],
           ),
 
           const SizedBox(height: 20),
 
-          // Thể loại phim - hiển thị tiếng Việt từ category
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildGenreChip(movie.category.vi),
-
-                // Nếu backend sau này trả nhiều thể loại (List<String>)
-                // thì dùng: movie.genres.map((g) => _buildGenreChip(g.vi)).toList()
-              ],
-            ),
+            child: Row(children: [_buildGenreChip(movie.category.vi)]),
           ),
 
           const SizedBox(height: 8),

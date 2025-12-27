@@ -4,12 +4,18 @@ class MovieCinemaShowtimeResponse {
   final String movieId;
   final String movieTitle;
   final String? posterUrl;
+  final String? category; // Thêm category
+  final int? durationMinutes; // Thêm duration
+  final int? ageLimit; // Thêm age limit
   final List<CinemaWithShowtimes> cinemas;
 
   MovieCinemaShowtimeResponse({
     required this.movieId,
     required this.movieTitle,
     this.posterUrl,
+    this.category,
+    this.durationMinutes,
+    this.ageLimit,
     required this.cinemas,
   });
 
@@ -20,6 +26,9 @@ class MovieCinemaShowtimeResponse {
       movieId: data['movieId'] as String,
       movieTitle: data['movieTitle'] as String,
       posterUrl: data['posterUrl'] as String?,
+      category: data['category'] as String?,
+      durationMinutes: data['durationMinutes'] as int?,
+      ageLimit: data['ageLimit'] as int?,
       cinemas: (data['cinemas'] as List<dynamic>)
           .map((e) => CinemaWithShowtimes.fromJson(e))
           .toList(),

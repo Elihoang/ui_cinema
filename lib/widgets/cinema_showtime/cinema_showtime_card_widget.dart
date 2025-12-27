@@ -41,6 +41,7 @@ class CinemaShowtimeCardWidget extends StatelessWidget {
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     // Cinema Banner Thumbnail
                     if (bannerUrl != null && bannerUrl!.isNotEmpty)
@@ -75,6 +76,7 @@ class CinemaShowtimeCardWidget extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             cinemaName,
@@ -83,9 +85,12 @@ class CinemaShowtimeCardWidget extends StatelessWidget {
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.place_outlined,
@@ -130,16 +135,22 @@ class CinemaShowtimeCardWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: onMapTap,
-                      icon: const Icon(
-                        Icons.map_outlined,
-                        color: Color(0xFFec1337),
-                      ),
-                      style: IconButton.styleFrom(
-                        backgroundColor: const Color(
-                          0xFFec1337,
-                        ).withOpacity(0.1),
+                    SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: IconButton(
+                        onPressed: onMapTap,
+                        icon: const Icon(
+                          Icons.map_outlined,
+                          color: Color(0xFFec1337),
+                          size: 20,
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFFec1337,
+                          ).withOpacity(0.1),
+                          padding: EdgeInsets.zero,
+                        ),
                       ),
                     ),
                   ],

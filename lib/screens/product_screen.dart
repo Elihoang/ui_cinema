@@ -81,6 +81,7 @@ class _ProductScreenState extends State<ProductScreen> {
     });
   }
 
+  // Lấy danh sách sản phẩm
   @override
   void initState() {
     super.initState();
@@ -124,10 +125,12 @@ class _ProductScreenState extends State<ProductScreen> {
               // Dữ liệu đã sẵn sàng
               return Column(
                 children: [
+                  // WIDGET
                   ProductHeader(
                     onBack: () => Navigator.pop(context),
                     onSkip: () => Navigator.pop(context),
                   ),
+                  // WIDGET
                   ProductCategoryChips(
                     categories: categories,
                     selectedCategory: selectedCategory,
@@ -156,6 +159,7 @@ class _ProductScreenState extends State<ProductScreen> {
                             itemBuilder: (context, index) {
                               final item = filteredItems[index];
                               final quantity = cart[item.id] ?? 0;
+                              // WIDGET
                               return ProductItemCard(
                                 item: item,
                                 quantity: quantity,
@@ -173,6 +177,7 @@ class _ProductScreenState extends State<ProductScreen> {
             left: 0,
             right: 0,
             bottom: 0,
+            // WIDGET
             child: ProductBottomBar(
               totalAmount: totalAmount,
               originalAmount: originalTotalAmount,

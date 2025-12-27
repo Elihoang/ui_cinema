@@ -1,17 +1,23 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-
 import '../models/eticket.dart';
 import '../models/user.dart';
+import '../models/member_point.dart';
+import '../models/member_tier.dart';
 import '../screens/auth/login_screen.dart';
+import '../screens/my_vouchers_screen.dart';
+import '../screens/voucher_store_screen.dart';
 import '../services/auth/token_storage.dart';
 import '../services/ticket_service.dart';
+import '../services/membership_service.dart';
+import '../services/user_voucher_service.dart';
 import '../widgets/profile/account_menu_item.dart';
 import '../widgets/profile/profile_header.dart';
 import '../widgets/profile/profile_stats.dart';
 import '../widgets/profile/settings_menu_item.dart';
 import '../widgets/profile/upcoming_tickets_section.dart';
+import '../widgets/profile/membership_card.dart';
+import '../widgets/profile/membership_tier_progress.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onRefresh;
@@ -30,6 +36,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<ETicket> upcomingTickets = [];
   bool loadingTickets = false;
   int watchedMoviesCount = 0;
+
+  // Membership state
+  MemberPoint? memberPoint;
+  bool loadingMembership = false;
+  int availableVoucherCount = 0;
 
   static const _bg = Color(0xFF120709);
   static const _accent = Color(0xFFEC1337);
@@ -118,11 +129,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final mail = _pickString(payload, ['email', 'mail', 'upn'], fallback: '');
 
       setState(() {
-        user = User(id: id, name: name, avatar: avatar, watchedCount: watchedMoviesCount);
+        user = User(
+          id: id,
+          name: name,
+          avatar: avatar,
+          watchedCount: watchedMoviesCount,
+        );
         email = mail;
         isLoading = false;
       });
       _loadUpcomingTickets();
+      _loadMemberProfile();
+      _loadAvailableVouchers();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -138,14 +156,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final tickets = await TicketService.fetchUpcomingTickets();
       print('[ProfileScreen] Fetched ${tickets.length} upcoming tickets');
-      
+
       // Lấy tất cả vé để đếm số phim đã xem
       final allTickets = await TicketService.fetchMyTickets();
       final now = DateTime.now();
-      final watchedTickets = allTickets.where((ticket) => 
-        ticket.isUsed || ticket.showtime.isBefore(now)
-      ).toList();
-      
+      final watchedTickets = allTickets
+          .where((ticket) => ticket.isUsed || ticket.showtime.isBefore(now))
+          .toList();
+
       if (mounted) {
         setState(() {
           upcomingTickets = tickets.take(5).toList(); // Lấy tối đa 5 vé
@@ -161,13 +179,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           }
         });
-        print('[ProfileScreen] Updated state with ${upcomingTickets.length} tickets and $watchedMoviesCount watched');
+        print(
+          '[ProfileScreen] Updated state with ${upcomingTickets.length} tickets and $watchedMoviesCount watched',
+        );
       }
     } catch (e) {
       print('[ProfileScreen] Error loading tickets: $e');
       if (mounted) {
         setState(() => loadingTickets = false);
       }
+    }
+  }
+
+  Future<void> _loadMemberProfile() async {
+    if (user == null) return;
+
+    setState(() => loadingMembership = true);
+    try {
+      final profile = await MembershipService.getMemberProfile(user!.id);
+      if (mounted) {
+        setState(() {
+          memberPoint = profile;
+          loadingMembership = false;
+        });
+      }
+    } catch (e) {
+      print('[ProfileScreen] Error loading membership: $e');
+      if (mounted) {
+        setState(() => loadingMembership = false);
+      }
+    }
+  }
+
+  Future<void> _loadAvailableVouchers() async {
+    if (user == null) return;
+
+    try {
+      final vouchers = await UserVoucherService.getUserVouchers(
+        user!.id,
+        onlyAvailable: true,
+      );
+      if (mounted) {
+        setState(() {
+          availableVoucherCount = vouchers.length;
+        });
+      }
+    } catch (e) {
+      print('[ProfileScreen] Error loading vouchers: $e');
     }
   }
 
@@ -315,7 +373,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               subtitle: (email ?? '').isEmpty ? null : email,
             ),
             const SizedBox(height: 12),
-            ProfileStats(user: u),
+            ProfileStats(
+              user: u,
+              memberPoint: memberPoint,
+              availableVoucherCount: availableVoucherCount,
+            ),
             const SizedBox(height: 16),
             if (loadingTickets)
               const Center(
@@ -326,6 +388,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
               )
             else
               UpcomingTicketsSection(tickets: upcomingTickets),
+            const SizedBox(height: 16),
+
+            // Membership Card
+            if (loadingMembership)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(color: _accent),
+                ),
+              )
+            else
+              MembershipCard(
+                memberPoint: memberPoint,
+                onTap: () {
+                  // TODO: Navigate to membership details screen
+                },
+              ),
+
+            const SizedBox(height: 16),
+
+            // Membership Tier Progress
+            if (memberPoint != null) ...[
+              Builder(
+                builder: (context) {
+                  print(
+                    '[ProfileScreen] Rendering MembershipTierProgress for ${memberPoint!.currentTier.displayName}',
+                  );
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: MembershipTierProgress(memberPoint: memberPoint!),
+                  );
+                },
+              ),
+            ] else ...[
+              Builder(
+                builder: (context) {
+                  print(
+                    '[ProfileScreen] memberPoint is NULL - not showing tier progress',
+                  );
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
+
+            const SizedBox(height: 12),
+
+            // My Vouchers Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MyVouchersScreen()),
+                  );
+                },
+                icon: const Icon(Icons.discount),
+                label: const Text('Voucher của tôi'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _accent,
+                  side: const BorderSide(color: _accent),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Voucher Store Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const VoucherStoreScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.store),
+                label: const Text('Cửa hàng Voucher'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _accent,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: 16),
 
             Padding(

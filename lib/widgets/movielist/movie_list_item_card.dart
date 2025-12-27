@@ -97,7 +97,7 @@ class MovieListItemCard extends StatelessWidget {
                           Text(
                             movie.averageRating != null
                                 ? movie.averageRating!.toStringAsFixed(1)
-                                : 'N/A',
+                                : '...',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,

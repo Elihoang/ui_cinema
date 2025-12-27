@@ -1,3 +1,4 @@
+import 'package:fe_cinema_mobile/extensions/movie_category_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
@@ -82,7 +83,7 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
     );
   }
 
-  /// Fetch movies with showtimes for selected date
+  // Lấy danh sách phim và suất chiếu theo ngày
   Future<void> _loadMoviesWithShowtimes() async {
     setState(() {
       isLoading = true;
@@ -134,14 +135,14 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
+            // WIDGET
             CinemaDetailHeader(
               cinemaName: widget.cinema.name,
               onSearchPressed: () {
                 // Handle search
               },
             ),
-            // Cinema info
+            // WIDGET
             CinemaInfoCard(
               address: widget.cinema.address ?? 'Chưa có địa chỉ',
               distance: _getDistanceString(),
@@ -150,7 +151,7 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
                 // Handle map navigation
               },
             ),
-            // Date selector
+            // WIDGET
             CinemaDateSelector(
               dates: dates,
               onDateSelected: (index) {
@@ -243,7 +244,7 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
           final timeStr = DateFormat(
             'HH:mm',
           ).format(showtime.startTime.toLocal());
-          final priceStr = '${showtime.basePrice.toInt()}đ';
+          final priceStr = '${(showtime.basePrice / 1000).toStringAsFixed(0)}k';
 
           return ShowtimeSlotData(
             time: timeStr,
@@ -264,6 +265,7 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
             ? '${movie.totalReviews} đánh giá'
             : 'Chưa có đánh giá';
 
+        // WIDGET
         return CinemaMovieShowtimeItem(
           posterUrl: movie.posterUrl ?? 'https://via.placeholder.com/192x288',
           title: movie.title,
@@ -272,7 +274,9 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
           reviewCount: reviewCount,
           formatLabel: '2D Phụ đề',
           ageLimit: movie.ageLimit,
-          category: getCategoryDisplayName(movie.category),
+          category: movie
+              .category
+              .name, // Truyền enum name → widget sẽ parse và convert
           releaseDate: movie.releaseDate,
           showtimes: showtimeSlots,
           onShowtimeSelected: (time) {

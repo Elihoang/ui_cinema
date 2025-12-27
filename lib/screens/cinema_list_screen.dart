@@ -31,6 +31,7 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
     loadCinemas();
   }
 
+  // Lấy danh sách rạp
   Future<void> loadCinemas() async {
     setState(() {
       isLoading = true;
@@ -225,12 +226,15 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
       backgroundColor: const Color(0xFF221013),
       body: Column(
         children: [
+          // WIDGET
           CinemaHeader(
             onBackPressed: () => Navigator.pop(context),
             onMapPressed: () {},
             onNavigateToHome: widget.onNavigateToHome,
           ),
+          // WIDGET
           CinemaSearchBar(onSearchChanged: onSearchChanged),
+          // WIDGET
           CinemaFilterChips(onFilterSelected: onFilterSelected),
           Expanded(
             child: isLoading
@@ -286,6 +290,7 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
+                        // WIDGET
                         child: CinemaCard(
                           cinema: cinema,
                           isAvailable: cinema.isActive,

@@ -1,59 +1,30 @@
 import '../enums/movie_category.dart';
 
+/// Parse category string từ API thành MovieCategory enum
 MovieCategory parseMovieCategory(String? value) {
-  if (value == null) return MovieCategory.other;
+  print('[parseMovieCategory] Input: "$value" (type: ${value.runtimeType})');
 
-  return MovieCategory.values.firstWhere(
-    (e) => e.name.toLowerCase() == value.toLowerCase(),
-    orElse: () => MovieCategory.other,
-  );
-}
-
-String getCategoryDisplayName(MovieCategory category) {
-  switch (category) {
-    case MovieCategory.movie:
-      return 'Phim';
-    case MovieCategory.series:
-      return 'Phim bộ';
-    case MovieCategory.documentary:
-      return 'Phim tài liệu';
-    case MovieCategory.animation:
-      return 'Hoạt hình';
-    case MovieCategory.action:
-      return 'Hành động';
-    case MovieCategory.comedy:
-      return 'Hài kịch';
-    case MovieCategory.drama:
-      return 'Chính kịch';
-    case MovieCategory.horror:
-      return 'Kinh dị';
-    case MovieCategory.romance:
-      return 'Tình cảm';
-    case MovieCategory.sciFi:
-      return 'Khoa học viễn tưởng';
-    case MovieCategory.thriller:
-      return 'Ly kỳ';
-    case MovieCategory.war:
-      return 'Chiến tranh';
-    case MovieCategory.western:
-      return 'Viễn Tây';
-    case MovieCategory.musical:
-      return 'Nhạc kịch';
-    case MovieCategory.family:
-      return 'Gia đình';
-    case MovieCategory.fantasy:
-      return 'Thần thoại';
-    case MovieCategory.adventure:
-      return 'Phiêu lưu';
-    case MovieCategory.biography:
-      return 'Tiểu sử';
-    case MovieCategory.history:
-      return 'Lịch sử';
-    case MovieCategory.sport:
-      return 'Thể thao';
-    case MovieCategory.religious:
-      return 'Tôn giáo';
-    case MovieCategory.other:
-      return 'Khác';
+  if (value == null || value.trim().isEmpty) {
+    print('[parseMovieCategory] → other (null/empty)');
+    return MovieCategory.other;
   }
+
+  final cleanValue = value.trim().toLowerCase();
+  print('[parseMovieCategory] Clean: "$cleanValue"');
+
+  // Tìm enum matching với tên (case-insensitive)
+  final result = MovieCategory.values.firstWhere(
+    (e) {
+      final enumName = e.name.toLowerCase();
+      print('[parseMovieCategory] Comparing "$cleanValue" with "$enumName"');
+      return enumName == cleanValue;
+    },
+    orElse: () {
+      print('[parseMovieCategory] → other (no match found)');
+      return MovieCategory.other;
+    },
+  );
+
+  print('[parseMovieCategory] → ${result.name}');
+  return result;
 }

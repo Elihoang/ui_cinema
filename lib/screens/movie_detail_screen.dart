@@ -35,6 +35,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     _fetchCurrentUser();
   }
 
+  // Lấy thông tin user hiện tại
   Future<void> _fetchCurrentUser() async {
     final userId = await UserService.getUserId();
     if (mounted) {
@@ -44,6 +45,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     }
   }
 
+  // Lấy chi tiết phim
   Future<void> _fetchMovieDetail() async {
     try {
       final movieDetail = await MovieService.fetchMovieDetail(widget.movie.id);
@@ -76,6 +78,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     }
 
     try {
+      // Gọi API tạo review
       await _movieReviewService.createReview(widget.movie.id, rating, comment);
 
       if (mounted) {
@@ -139,10 +142,13 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
               children: [
                 CustomScrollView(
                   slivers: [
+                    // WIDGET
                     SliverToBoxAdapter(child: HeroSection(movie: widget.movie)),
+                    // WIDGET
                     SliverToBoxAdapter(
                       child: MovieInfoHeader(movie: widget.movie),
                     ),
+                    // WIDGET
                     SliverPersistentHeader(
                       pinned: true,
                       delegate: CustomTabBarDelegate(
@@ -152,6 +158,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                         reviewCount: _movieDetail?.reviews.length ?? 0,
                       ),
                     ),
+                    // WIDGET
                     SliverToBoxAdapter(
                       child: MovieDetailContent(
                         tabIndex: _selectedTabIndex,
@@ -164,12 +171,14 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                     ),
                   ],
                 ),
+                // WIDGET
                 TopNavigation(
                   isFavorite: _isFavorite,
                   onFavoritePressed: () =>
                       setState(() => _isFavorite = !_isFavorite),
                   onBackPressed: () => Navigator.pop(context),
                 ),
+                // WIDGET
                 BottomBookingBar(movie: widget.movie),
               ],
             ),

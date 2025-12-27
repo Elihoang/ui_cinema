@@ -52,8 +52,6 @@ class MovieService {
     if (response.statusCode == 200) {
       final jsonBody = json.decode(response.body);
 
-      // If the API wraps response in 'data' field, use jsonBody['data']
-      // Otherwise use jsonBody directly
       final movieData = jsonBody['data'] ?? jsonBody;
 
       return MovieDetail.fromJson(movieData);

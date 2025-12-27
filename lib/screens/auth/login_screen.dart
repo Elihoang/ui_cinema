@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/auth/token_storage.dart';
 import '../../layout/main_layout.dart';
@@ -59,7 +60,35 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
       ).pushReplacement(MaterialPageRoute(builder: (_) => const MainLayout()));
     } catch (e) {
-      setState(() => _error = e.toString());
+      String errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+
+      if (e is DioException) {
+        // Parse error from API response
+        if (e.response?.data != null) {
+          try {
+            final responseData = e.response!.data;
+            if (responseData is Map && responseData['message'] != null) {
+              errorMessage = responseData['message'].toString();
+            } else if (e.response?.statusCode == 401) {
+              errorMessage = 'Email hoặc mật khẩu không đúng';
+            }
+          } catch (_) {
+            // If parsing fails, use default error message based on status code
+            if (e.response?.statusCode == 401) {
+              errorMessage = 'Email hoặc mật khẩu không đúng';
+            } else if (e.response?.statusCode == 500) {
+              errorMessage = 'Lỗi máy chủ. Vui lòng thử lại sau.';
+            }
+          }
+        } else if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.receiveTimeout) {
+          errorMessage = 'Kết nối bị gián đoạn. Vui lòng kiểm tra mạng.';
+        } else if (e.type == DioExceptionType.connectionError) {
+          errorMessage = 'Không thể kết nối tới máy chủ.';
+        }
+      }
+
+      setState(() => _error = errorMessage);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -240,12 +269,38 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
 
                       if (_error != null) ...[
-                        const SizedBox(height: 6),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            _error!,
-                            style: const TextStyle(color: Colors.redAccent),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.redAccent.withOpacity(0.5),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.redAccent,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _error!,
+                                  style: const TextStyle(
+                                    color: Colors.redAccent,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
