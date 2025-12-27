@@ -17,7 +17,7 @@ class SeatSelectionScreen extends StatefulWidget {
   final String cinemaName;
   final String showtime;
   final String date;
-  final double basePrice; // Base price from showtime
+  final double basePrice;
 
   const SeatSelectionScreen({
     super.key,
@@ -52,6 +52,7 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
     await Future.wait([_fetchSeats(), _fetchSeatTypes()]);
   }
 
+  // Lấy danh sách loại ghế (VIP, Standard, Couple...)
   Future<void> _fetchSeatTypes() async {
     try {
       final fetchedSeatTypes = await SeatTypeService.getAllSeatTypes();
@@ -59,11 +60,12 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
         seatTypes = fetchedSeatTypes;
       });
     } catch (e) {
-      // Use default surcharge rates if API fails
+      // dùng mặc định phí
       print('Failed to fetch seat types: $e');
     }
   }
 
+  // Lấy danh sách ghế theo suất chiếu
   Future<void> _fetchSeats() async {
     setState(() {
       _isLoading = true;
@@ -71,7 +73,7 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
     });
 
     try {
-      // Use the Showtimes endpoint to get seats with booking status
+      // Gọi API SeatService.getSeatsByShowtimeId() - Lấy trạng thái ghế (available, booked, selected)
       final fetchedSeats = await SeatService.getSeatsByShowtimeId(
         widget.showtimeId,
       );
@@ -94,6 +96,7 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            // WIDGET
             StickyHeader(
               movieTitle: widget.movieTitle,
               cinemaName: widget.cinemaName,
@@ -102,7 +105,9 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
               onBack: () => Navigator.pop(context),
             ),
             Expanded(child: _buildContent()),
+            // WIDGET
             const Legend(),
+            // WIDGET
             BottomPaymentBar(
               selectedSeats: selectedSeats
                   .map((id) => seats.firstWhere((s) => s.id == id))
@@ -174,9 +179,11 @@ class _SeatSelectionScreenState extends State<SeatSelectionScreen> {
     return Column(
       children: [
         const SizedBox(height: 24),
+        // WIDGET
         const ScreenVisual(),
         const SizedBox(height: 24),
         Expanded(
+          // WIDGET
           child: SeatGrid(
             seats: seats,
             selectedSeats: selectedSeats,

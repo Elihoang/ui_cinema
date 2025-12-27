@@ -3,7 +3,7 @@ import '../models/movie.dart';
 import '../services/movie_service.dart';
 import '../widgets/movielist/movie_list_search_bar.dart';
 import '../widgets/movielist/movie_list_filter_chips.dart';
-import '../widgets/movielist/featured_movies_carousel.dart';
+import '../widgets/home/featured_movies_carousel.dart';
 import '../widgets/movielist/movie_list_item_card.dart';
 
 enum MovieListType { nowShowing, upcoming }
@@ -27,6 +27,7 @@ class _MovieListScreenState extends State<MovieListScreen> {
   String searchQuery = '';
   String selectedFilter = 'Tất cả';
 
+  // Lấy danh sách phim
   @override
   void initState() {
     super.initState();
@@ -106,8 +107,10 @@ class _MovieListScreenState extends State<MovieListScreen> {
         child: Column(
           children: [
             const SizedBox(height: 8),
+            // WIDGET
             MovieListSearchBar(onSearchChanged: _onSearchChanged),
             const SizedBox(height: 16),
+            // WIDGET
             MovieListFilterChips(onFilterChanged: _onFilterChanged),
             const SizedBox(height: 24),
 
@@ -147,8 +150,10 @@ class _MovieListScreenState extends State<MovieListScreen> {
                             allMovies.isNotEmpty &&
                             searchQuery.isEmpty &&
                             selectedFilter == 'Tất cả')
+                          // WIDGET
                           FeaturedMoviesCarousel(
                             movies: allMovies.take(5).toList(),
+                            interval: const Duration(seconds: 5),
                           ),
 
                         if (widget.listType == MovieListType.nowShowing &&

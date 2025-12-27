@@ -3,6 +3,7 @@ import 'cinema_showtime_button.dart';
 import '../other/age_badge.dart';
 import '../../utils/movie_category_parser.dart';
 import '../../utils/formatDate.dart';
+import '../../extensions/movie_category_extension.dart'; // Import extension .vi
 
 class ShowtimeSlotData {
   final String time;
@@ -291,7 +292,7 @@ class CinemaMovieShowtimeItem extends StatelessWidget {
 
     return categories.map((cat) {
       final movieCategory = parseMovieCategory(cat);
-      final displayName = getCategoryDisplayName(movieCategory);
+      final displayName = movieCategory.vi; // Dùng extension .vi
 
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

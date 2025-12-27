@@ -5,6 +5,7 @@ import '../models/movie_cinema_showtime_response.dart';
 import '../services/movie_service.dart';
 import '../services/cinema_service.dart';
 import '../utils/distance_utils.dart';
+import '../utils/formatDate.dart';
 import '../widgets/cinema_showtime/movie_showtime_header.dart';
 import '../widgets/cinema_showtime/date_selector_strip.dart';
 import '../widgets/cinema_showtime/cinema_brand_selector.dart';
@@ -12,6 +13,7 @@ import '../widgets/cinema_showtime/showtime_filter_chips.dart';
 import '../widgets/cinema_showtime/cinema_showtime_card_widget.dart';
 import '../widgets/cinema_showtime/showtime_format_section.dart';
 import 'seat_selection_screen.dart';
+import 'package:fe_cinema_mobile/extensions/movie_category_extension.dart';
 
 class CinemaShowtimeListScreen extends StatefulWidget {
   final String movieId;
@@ -128,6 +130,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
     }
   }
 
+  // Lấy danh sách rạp và suất chiếu theo phim
   Future<void> _fetchShowtimes() async {
     setState(() {
       _isLoading = true;
@@ -158,6 +161,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
 
   List<CinemaBrand> brands = [];
 
+  // Lấy danh sách thương hiệu rạp
   Future<void> _fetchBrands() async {
     try {
       final brandResponses = await CinemaService.fetchCinemaBrands();
@@ -236,10 +240,12 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
               ),
               child: Column(
                 children: [
+                  // WIDGET
                   MovieShowtimeHeader(
                     movieTitle: widget.movieTitle,
                     movieInfo: widget.movieInfo,
                   ),
+                  // WIDGET
                   DateSelectorStrip(
                     dates: dates,
                     selectedIndex: selectedDateIndex,
@@ -250,6 +256,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
                       _fetchShowtimes();
                     },
                   ),
+                  // WIDGET
                   SafeArea(
                     bottom: false,
                     child: CinemaBrandSelector(
@@ -262,6 +269,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
                       },
                     ),
                   ),
+                  // WIDGET
                   ShowtimeFilterChips(
                     selectedLocation: selectedLocation,
                     onLocationChanged: (LocationFilter location) {
@@ -411,6 +419,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
+          // WIDGET
           child: CinemaShowtimeCardWidget(
             cinemaName: cinema.cinemaName,
             address: cinema.address ?? 'Không có địa chỉ',
@@ -437,7 +446,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
 
               // Format date for display
               final selectedDate = dateObjects[selectedDateIndex];
-              final dateStr = DateFormat('dd/MM/yyyy').format(selectedDate);
+              final dateStr = formatDate(selectedDate);
 
               // Navigate to seat selection screen
               Navigator.push(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
-import '../../screens/showtime_selection_screen.dart';
 import '../../extensions/movie_category_extension.dart';
 import '../other/age_badge.dart';
 

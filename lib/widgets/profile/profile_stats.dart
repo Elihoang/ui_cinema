@@ -1,16 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../models/user.dart';
+import '../../models/member_point.dart';
 
 class ProfileStats extends StatelessWidget {
   final User user;
+  final MemberPoint? memberPoint;
+  final int availableVoucherCount;
 
-  const ProfileStats({super.key, required this.user});
+  const ProfileStats({
+    super.key,
+    required this.user,
+    this.memberPoint,
+    this.availableVoucherCount = 0,
+  });
 
   static const _card = Color(0xFF2A1014);
   static const _border = Color(0xFF351A1E);
 
   @override
   Widget build(BuildContext context) {
+    // Format points (e.g., 1500 -> "1.5k", 700 -> "700")
+    String formatPoints(int points) {
+      if (points >= 1000) {
+        return '${(points / 1000).toStringAsFixed(1)}k';
+      }
+      return points.toString();
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -30,7 +46,7 @@ class ProfileStats extends StatelessWidget {
               color: Colors.white.withOpacity(0.08),
             ),
             _StatItem(
-              value: '${user.rewardPoints ~/ 1000}k',
+              value: formatPoints(memberPoint?.lifetimePoints ?? 0),
               label: 'Điểm thưởng',
             ),
             Container(
@@ -38,7 +54,10 @@ class ProfileStats extends StatelessWidget {
               height: 40,
               color: Colors.white.withOpacity(0.08),
             ),
-            _StatItem(value: user.voucherCount.toString(), label: 'Voucher'),
+            _StatItem(
+              value: availableVoucherCount.toString(),
+              label: 'Voucher',
+            ),
           ],
         ),
       ),

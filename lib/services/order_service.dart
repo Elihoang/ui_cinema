@@ -103,16 +103,102 @@ class OrderService {
   }
 
   /// Hủy đơn hàng
-  /// Endpoint: DELETE /api/Orders/{id}
+  /// Endpoint: POST /api/Orders/{id}/cancel
   static Future<bool> cancelOrder(String orderId, {String? token}) async {
-    final headers = {if (token != null) 'Authorization': 'Bearer $token'};
+    final headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
 
-    final response = await http.delete(
-      Uri.parse('$baseUrl/Orders/$orderId'),
+    final response = await http.post(
+      Uri.parse('$baseUrl/Orders/$orderId/cancel'),
       headers: headers,
     );
 
     return response.statusCode == 200 || response.statusCode == 204;
+  }
+
+  /// Xác nhận đơn hàng (sau khi thanh toán thành công)
+  /// Endpoint: POST /api/Orders/{id}/confirm
+  static Future<bool> confirmOrder(String orderId, {String? token}) async {
+    final headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/Orders/$orderId/confirm'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      final Map<String, dynamic> jsonBody = json.decode(response.body);
+      throw Exception(jsonBody['message'] ?? 'Lỗi khi xác nhận đơn hàng');
+    }
+  }
+
+  /// Áp dụng voucher vào order
+  /// Endpoint: POST /api/Orders/{orderId}/apply-voucher
+  static Future<OrderResponseDto> applyVoucher({
+    required String orderId,
+    required String userVoucherId,
+    String? token,
+  }) async {
+    final headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+
+    final body = json.encode({'userVoucherId': userVoucherId});
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/Orders/$orderId/apply-voucher'),
+      headers: headers,
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonBody = json.decode(response.body);
+      final dynamic data = jsonBody['data'];
+      if (data == null) {
+        throw Exception(jsonBody['message'] ?? 'Lỗi khi áp dụng voucher');
+      }
+      return OrderResponseDto.fromJson(data);
+    } else {
+      final Map<String, dynamic> jsonBody = json.decode(response.body);
+      throw Exception(jsonBody['message'] ?? 'Lỗi khi áp dụng voucher');
+    }
+  }
+
+  /// Xóa voucher khỏi order
+  /// Endpoint: DELETE /api/Orders/{orderId}/remove-voucher
+  static Future<OrderResponseDto> removeVoucher({
+    required String orderId,
+    String? token,
+  }) async {
+    final headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/Orders/$orderId/remove-voucher'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonBody = json.decode(response.body);
+      final dynamic data = jsonBody['data'];
+      if (data == null) {
+        throw Exception(jsonBody['message'] ?? 'Lỗi khi xóa voucher');
+      }
+      return OrderResponseDto.fromJson(data);
+    } else {
+      final Map<String, dynamic> jsonBody = json.decode(response.body);
+      throw Exception(jsonBody['message'] ?? 'Lỗi khi xóa voucher');
+    }
   }
 }
 
@@ -144,6 +230,9 @@ class OrderResponseDto {
   final String id;
   final String? userId;
   final double totalAmount;
+  final double? discountAmount;
+  final double? finalAmount;
+  final String? userVoucherId;
   final String status;
   final String? paymentMethod;
   final DateTime createdAt;
@@ -153,6 +242,9 @@ class OrderResponseDto {
     required this.id,
     this.userId,
     required this.totalAmount,
+    this.discountAmount,
+    this.finalAmount,
+    this.userVoucherId,
     required this.status,
     this.paymentMethod,
     required this.createdAt,
@@ -164,6 +256,13 @@ class OrderResponseDto {
       id: json['id'] as String,
       userId: json['userId'] as String?,
       totalAmount: (json['totalAmount'] as num).toDouble(),
+      discountAmount: json['discountAmount'] != null
+          ? (json['discountAmount'] as num).toDouble()
+          : null,
+      finalAmount: json['finalAmount'] != null
+          ? (json['finalAmount'] as num).toDouble()
+          : null,
+      userVoucherId: json['userVoucherId'] as String?,
       status: json['status'] as String,
       paymentMethod: json['paymentMethod'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),

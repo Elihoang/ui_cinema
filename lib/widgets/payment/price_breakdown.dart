@@ -3,8 +3,15 @@ import '../../models/booking.dart';
 
 class PriceBreakdown extends StatelessWidget {
   final BookingInfo booking;
+  final double voucherDiscount;
+  final double? finalAmount;
 
-  const PriceBreakdown({super.key, required this.booking});
+  const PriceBreakdown({
+    super.key,
+    required this.booking,
+    this.voucherDiscount = 0,
+    this.finalAmount,
+  });
 
   String _formatPrice(double price) {
     return '${price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}đ';
@@ -12,6 +19,8 @@ class PriceBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayFinalAmount = finalAmount ?? booking.total;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -24,17 +33,30 @@ class PriceBreakdown extends StatelessWidget {
           _buildPriceRow('Tạm tính', booking.subtotal, false),
           const SizedBox(height: 12),
           _buildPriceRow('Combo bắp nước', booking.comboPrice, false),
-          const SizedBox(height: 12),
-          _buildPriceRow(
-            'Giảm giá',
-            -booking.discount,
-            false,
-            isDiscount: true,
-          ),
+          // Only show default discount if it's greater than 0
+          if (booking.discount > 0) ...[
+            const SizedBox(height: 12),
+            _buildPriceRow(
+              'Giảm giá',
+              -booking.discount,
+              false,
+              isDiscount: true,
+            ),
+          ],
+          // Voucher discount
+          if (voucherDiscount > 0) ...[
+            const SizedBox(height: 12),
+            _buildPriceRow(
+              'Voucher giảm giá',
+              -voucherDiscount,
+              false,
+              isDiscount: true,
+            ),
+          ],
           const SizedBox(height: 12),
           Container(height: 1, color: Colors.white.withOpacity(0.1)),
           const SizedBox(height: 12),
-          _buildPriceRow('Tổng cộng', booking.total, true),
+          _buildPriceRow('Tổng cộng', displayFinalAmount, true),
         ],
       ),
     );

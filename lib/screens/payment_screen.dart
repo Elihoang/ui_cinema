@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../models/booking.dart';
+import '../models/user_voucher.dart';
+import '../models/voucher.dart';
 import '../widgets/payment/booking_summary_card.dart';
 import '../widgets/payment/countdown_timer_widget.dart';
 import '../widgets/payment/promo_code_input.dart';
 import '../widgets/payment/price_breakdown.dart';
 import '../widgets/payment/payment_method_item.dart';
+import '../widgets/payment/voucher_bottom_sheet.dart';
 import '../services/order_service.dart';
 import '../services/payment_service.dart';
 import '../services/auth/token_storage.dart';
 import '../services/user_service.dart';
+import '../services/user_voucher_service.dart';
 
 class PaymentScreen extends StatefulWidget {
   final BookingInfo booking;
@@ -29,20 +33,166 @@ class _PaymentScreenState extends State<PaymentScreen> {
   int _pollingAttempts = 0;
   static const int _maxPollingAttempts = 60; // 3 phút (60 x 3s)
 
+  // Voucher state
+  UserVoucher? _selectedVoucher;
+  List<UserVoucher> _availableVouchers = [];
+  bool _isLoadingVouchers = false;
+  double _discountAmount = 0;
+  double _finalAmount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvailableVouchers();
+    _calculateFinalAmount();
+  }
+
   @override
   void dispose() {
     _paymentPollingTimer?.cancel();
     super.dispose();
   }
 
+  Future<void> _loadAvailableVouchers() async {
+    setState(() => _isLoadingVouchers = true);
+    try {
+      final userId = await UserService.getUserId();
+      if (userId != null) {
+        final vouchers = await UserVoucherService.getUserVouchers(
+          userId,
+          onlyAvailable: true,
+        );
+        setState(() {
+          _availableVouchers = vouchers;
+          _isLoadingVouchers = false;
+        });
+      }
+    } catch (e) {
+      print('[PaymentScreen] Error loading vouchers: $e');
+      setState(() => _isLoadingVouchers = false);
+    }
+  }
+
+  void _calculateFinalAmount() {
+    setState(() {
+      _finalAmount = widget.booking.total - _discountAmount;
+    });
+  }
+
+  Future<void> _applyVoucherToOrder(UserVoucher voucher) async {
+    if (_orderId == null) return;
+
+    try {
+      final order = await OrderService.applyVoucher(
+        orderId: _orderId!,
+        userVoucherId: voucher.id,
+      );
+      setState(() {
+        _selectedVoucher = voucher;
+        _discountAmount = order.discountAmount ?? 0;
+        _finalAmount = order.finalAmount ?? widget.booking.total;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã áp dụng voucher!'),
+            backgroundColor: Color(0xFF34D399),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: $e'),
+            backgroundColor: const Color(0xFFEC1337),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeVoucherFromOrder() async {
+    if (_orderId == null) return;
+
+    try {
+      await OrderService.removeVoucher(orderId: _orderId!);
+      setState(() {
+        _selectedVoucher = null;
+        _discountAmount = 0;
+        _finalAmount = widget.booking.total;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã xóa voucher'),
+            backgroundColor: Color(0xFF64748B),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: $e'),
+            backgroundColor: const Color(0xFFEC1337),
+          ),
+        );
+      }
+    }
+  }
+
   void _applyPromoCode(String code) {
-    // Handle promo code application
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đã áp dụng mã: $code'),
-        backgroundColor: const Color(0xFFEC1337),
-      ),
+    // Find voucher by code
+    final voucher = _availableVouchers.cast<UserVoucher?>().firstWhere(
+      (v) => v?.voucher?.code.toUpperCase() == code.toUpperCase(),
+      orElse: () => null,
     );
+
+    if (voucher != null && voucher.voucher != null) {
+      // Calculate discount preview
+      final voucherData = voucher.voucher!;
+      double discountPreview = 0;
+
+      if (voucherData.voucherType == VoucherType.percentage) {
+        // Percentage discount
+        discountPreview =
+            widget.booking.total * (voucherData.discountValue / 100);
+        // Apply max discount if specified
+        if (voucherData.maxDiscountAmount != null &&
+            discountPreview > voucherData.maxDiscountAmount!) {
+          discountPreview = voucherData.maxDiscountAmount!;
+        }
+      } else {
+        // Fixed amount discount
+        discountPreview = voucherData.discountValue;
+      }
+
+      setState(() {
+        _selectedVoucher = voucher;
+        _discountAmount = discountPreview;
+        _finalAmount = widget.booking.total - discountPreview;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Đã chọn voucher: ${voucherData.name}\nGiảm ${_formatPrice(discountPreview)}',
+          ),
+          backgroundColor: const Color(0xFF34D399),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Không tìm thấy voucher: $code'),
+          backgroundColor: const Color(0xFFEC1337),
+        ),
+      );
+    }
   }
 
   Future<void> _processPayment() async {
@@ -58,7 +208,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           style: TextStyle(color: Colors.white),
         ),
         content: Text(
-          'Thanh toán ${_formatPrice(widget.booking.total)} qua ${_getPaymentMethodName()}?',
+          'Thanh toán ${_formatPrice(_finalAmount > 0 ? _finalAmount : widget.booking.total)} qua ${_getPaymentMethodName()}?',
           style: const TextStyle(color: Color(0xFFC9929B)),
         ),
         actions: [
@@ -133,9 +283,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _orderId = order.id;
       });
 
+      // Bước 1.5: Apply voucher nếu có
+      double finalAmount = order.totalAmount;
+      if (_selectedVoucher != null) {
+        try {
+          final updatedOrder = await OrderService.applyVoucher(
+            orderId: order.id,
+            userVoucherId: _selectedVoucher!.id,
+          );
+          setState(() {
+            _discountAmount = updatedOrder.discountAmount ?? 0;
+            _finalAmount = updatedOrder.finalAmount ?? order.totalAmount;
+          });
+          finalAmount = updatedOrder.finalAmount ?? order.totalAmount;
+
+          debugPrint('===== VOUCHER APPLIED =====');
+          debugPrint('Discount: $_discountAmount');
+          debugPrint('Final Amount: $finalAmount');
+          debugPrint('==========================');
+        } catch (e) {
+          debugPrint('Error applying voucher: $e');
+          // Continue with payment even if voucher fails
+        }
+      }
+
       // Bước 2: Tạo thanh toán dựa trên phương thức
       if (_selectedPaymentMethod == PaymentMethod.momo) {
-        await _processMomoPayment(order.id, order.totalAmount, token);
+        await _processMomoPayment(order.id, finalAmount, token);
       } else {
         // Các phương thức thanh toán khác
         _showErrorDialog('Phương thức thanh toán này chưa được hỗ trợ');
@@ -397,6 +571,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return '${price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}đ';
   }
 
+  void _showVoucherSelector() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => VoucherBottomSheet(
+        vouchers: _availableVouchers,
+        booking: widget.booking,
+        onVoucherSelected: (voucher) {
+          if (voucher.voucher != null) {
+            _applyPromoCode(voucher.voucher!.code);
+          }
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -446,13 +637,90 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Promo Code Input
-                      PromoCodeInput(onApply: _applyPromoCode),
+                      // Promo Code Input with Select Button
+                      Row(
+                        children: [
+                          Expanded(
+                            child: PromoCodeInput(onApply: _applyPromoCode),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: _showVoucherSelector,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFEC1337),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Chọn',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Selected Voucher Display
+                      if (_selectedVoucher != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF34D399).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF34D399)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.check_circle,
+                                color: Color(0xFF34D399),
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '${_selectedVoucher!.voucher?.name ?? "Voucher"} - Giảm ${_formatPrice(_discountAmount)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.white70,
+                                  size: 18,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedVoucher = null;
+                                    _discountAmount = 0;
+                                    _finalAmount = 0;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
 
                       const SizedBox(height: 24),
 
                       // Price Breakdown
-                      PriceBreakdown(booking: widget.booking),
+                      PriceBreakdown(
+                        booking: widget.booking,
+                        voucherDiscount: _discountAmount,
+                        finalAmount: _finalAmount > 0 ? _finalAmount : null,
+                      ),
 
                       const SizedBox(height: 32),
 
@@ -551,7 +819,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       const Icon(Icons.lock_outline, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Thanh toán ${_formatPrice(widget.booking.total)}',
+                        'Thanh toán ${_formatPrice(_finalAmount > 0 ? _finalAmount : widget.booking.total)}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
