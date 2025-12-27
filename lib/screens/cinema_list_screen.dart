@@ -80,47 +80,16 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
 
   // HÀM RIÊNG ĐỂ SẮP XẾP THEO KHOẢNG CÁCH GẦN NHẤT
   Future<void> _sortByNearest() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng bật dịch vụ định vị (GPS)')),
-      );
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cần cấp quyền vị trí để dùng tính năng này'),
-          ),
-        );
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Quyền vị trí bị từ chối vĩnh viễn. Vui lòng vào cài đặt để bật',
-          ),
-        ),
-      );
-      return;
-    }
-
     setState(() => isLoading = true);
 
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      final position = await _getUserPosition();
+      if (position == null) {
+        if (mounted) setState(() => isLoading = false);
+        return;
+      }
+
+      if (!mounted) return;
 
       setState(() {
         _userPosition = position;
@@ -129,14 +98,14 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
             if (a.latitude == null || a.longitude == null) return 1;
             if (b.latitude == null || b.longitude == null) return -1;
 
-            double distA = Geolocator.distanceBetween(
+            final distA = Geolocator.distanceBetween(
               position.latitude,
               position.longitude,
               a.latitude!,
               a.longitude!,
             );
 
-            double distB = Geolocator.distanceBetween(
+            final distB = Geolocator.distanceBetween(
               position.latitude,
               position.longitude,
               b.latitude!,
@@ -148,15 +117,12 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
 
         isLoading = false;
       });
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text('Đã sắp xếp theo khoảng cách gần nhất!')),
-      // );
     } catch (e) {
+      if (!mounted) return;
       setState(() => isLoading = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Lỗi lấy vị trí: $e')));
+      ).showSnackBar(SnackBar(content: Text('Không thể lấy vị trí: $e')));
     }
   }
 
@@ -197,6 +163,60 @@ class _CinemaListScreenState extends State<CinemaListScreen> {
         applySearch(_currentSearchQuery);
       }
     });
+  }
+
+  Future<bool> _ensureLocationPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng bật GPS trên thiết bị')),
+      );
+      return false;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bạn cần cấp quyền vị trí để dùng tính năng này'),
+        ),
+      );
+      return false;
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Quyền vị trí bị từ chối vĩnh viễn. Vui lòng bật trong Cài đặt',
+          ),
+          action: SnackBarAction(
+            label: 'Mở cài đặt',
+            onPressed: Geolocator.openAppSettings,
+          ),
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<Position?> _getUserPosition() async {
+    final hasPermission = await _ensureLocationPermission();
+    if (!hasPermission) return null;
+
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
   }
 
   @override

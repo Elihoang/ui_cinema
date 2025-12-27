@@ -1,5 +1,5 @@
 import 'actor.dart';
-import 'movie_review.dart';
+import 'review/movie_review.dart';
 import '../enums/movie_category.dart';
 import '../utils/movie_category_parser.dart';
 

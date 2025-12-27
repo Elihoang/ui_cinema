@@ -40,6 +40,7 @@ class BottomBookingBar extends StatelessWidget {
                         movieTitle: movie.title,
                         movieInfo:
                             'T${movie.ageLimit} • ${getCategoryDisplayName(movie.category)} • ${movie.durationMinutes}p',
+                        moviePoster: movie.posterUrl,
                       ),
                     ),
                   );

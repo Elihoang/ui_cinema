@@ -89,12 +89,15 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.isEditing ? 'Chỉnh sửa đánh giá' : 'Đánh giá phim',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    widget.isEditing ? 'Chỉnh sửa đánh giá' : 'Đánh giá phim',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(
@@ -105,41 +108,35 @@ class _AddReviewDialogState extends State<AddReviewDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
 
             // Star Rating
-            const Text(
-              'Chọn số sao',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
             const SizedBox(height: 12),
             Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(5, (index) {
-                  final starValue = index + 1;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedRating = starValue;
-                      });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Icon(
-                        _selectedRating >= starValue
-                            ? Icons.star
-                            : Icons.star_border,
-                        color: const Color(0xFFEC1337),
-                        size: 40,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(5, (index) {
+                    final starValue = index + 1;
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedRating = starValue;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(
+                          _selectedRating >= starValue
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: const Color(0xFFEC1337),
+                          size: 40,
+                        ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
             ),
             if (_selectedRating > 0)

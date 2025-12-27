@@ -1,31 +1,43 @@
-import 'package:fe_cinema_mobile/screens/product_screen.dart';
+import 'package:fe_cinema_mobile/widgets/qr/qr_scanner_page.dart';
 import 'package:flutter/material.dart';
-import '../widgets/home/bottom_nav_bar.dart';
-import '../screens/home_screen.dart';
-import '../screens/my_ticket_screen.dart';
+
 import '../layout/sidebar_menu.dart';
 import '../screens/cinema_list_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/my_ticket_screen.dart';
 import '../screens/profile_screen.dart';
+import '../widgets/home/bottom_nav_bar.dart';
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
+  final int initialIndex;
+  const MainLayout({super.key, this.initialIndex = 0});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   // Tạo các screen riêng biệt để có thể truy cập _selectedIndex và setState
   late final List<Widget> _screens;
+  
+  // GlobalKey để access ProfileScreen state
+  final GlobalKey<State<ProfileScreen>> _profileKey = GlobalKey<State<ProfileScreen>>();
 
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.initialIndex;
     _screens = [
       HomeScreen(),
-      const MyTicketScreen(),
+      MyTicketScreen(
+        onNavigateToHome: () {
+          setState(() {
+            _selectedIndex = 0;
+          });
+        },
+      ),
       const SizedBox(), // Placeholder cho nút QR giữa
       CinemaListScreen(
         onNavigateToHome: () {
@@ -35,7 +47,7 @@ class _MainLayoutState extends State<MainLayout> {
           });
         },
       ),
-      const ProfileScreen(),
+      ProfileScreen(key: _profileKey),
       //const ProductScreen(),
     ];
   }
@@ -43,9 +55,29 @@ class _MainLayoutState extends State<MainLayout> {
   void _onItemTapped(int index) {
     if (index == 2) {
       // Xử lý khi bấm nút QR Code ở giữa
-      print("Open QR Scanner");
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const QrScannerPage()),
+      );
       return;
     }
+    
+    // Nếu chuyển sang tab Profile (index 4), reload vé sắp chiếu
+    if (index == 4 && _selectedIndex != 4) {
+      print('[MainLayout] Switching to Profile tab, reloading tickets...');
+      try {
+        final profileState = _profileKey.currentState as dynamic;
+        if (profileState != null) {
+          profileState.reloadTickets();
+          print('[MainLayout] Called reloadTickets() successfully');
+        } else {
+          print('[MainLayout] ProfileState is null');
+        }
+      } catch (e) {
+        print('[MainLayout] Error calling reloadTickets: $e');
+      }
+    }
+    
     setState(() {
       _selectedIndex = index;
     });
