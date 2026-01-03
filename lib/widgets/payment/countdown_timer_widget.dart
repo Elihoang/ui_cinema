@@ -90,23 +90,26 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget> {
         children: [
           const Icon(Icons.timer_outlined, color: Color(0xFFEC1337), size: 18),
           const SizedBox(width: 8),
-          RichText(
-            text: TextSpan(
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-              ),
-              children: [
-                const TextSpan(text: 'Thời gian giữ vé: '),
-                TextSpan(
-                  text: _formatTime(),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFEC1337),
-                  ),
+          Flexible(
+            child: RichText(
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
                 ),
-              ],
+                children: [
+                  const TextSpan(text: 'Thời gian giữ vé: '),
+                  TextSpan(
+                    text: _formatTime(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFEC1337),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

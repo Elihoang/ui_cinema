@@ -53,25 +53,38 @@ class PaymentService {
   }
 
   /// Truy vấn trạng thái giao dịch
-  /// Endpoint: GET /api/MomoPayment/query/{orderId}
+  /// Endpoint: GET /api/MomoPayment/query/{orderId}?requestId={requestId}
   static Future<MomoQueryResponse> queryTransaction(
     String orderId, {
+    required String requestId, // Thêm bắt buộc requestId
     String? token,
   }) async {
     final headers = {if (token != null) 'Authorization': 'Bearer $token'};
 
-    final response = await http.get(
-      Uri.parse('$baseUrl/MomoPayment/query/$orderId'),
-      headers: headers,
-    );
+    // Thêm requestId vào query params
+    final uri = Uri.parse(
+      '$baseUrl/MomoPayment/query/$orderId',
+    ).replace(queryParameters: {'requestId': requestId});
+
+    final response = await http.get(uri, headers: headers);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonBody = json.decode(response.body);
       final dynamic data = jsonBody['data'];
-      if (data == null) {
-        throw Exception(jsonBody['message'] ?? 'Không thể truy vấn giao dịch');
+
+      if (data != null) {
+        return MomoQueryResponse.fromJson(data);
+      } else {
+        // Fallback: try parsing from the root object
+        try {
+          return MomoQueryResponse.fromJson(jsonBody);
+        } catch (_) {
+          // If parsing fails, throw with the message
+          throw Exception(
+            jsonBody['message'] ?? 'Không thể truy vấn giao dịch',
+          );
+        }
       }
-      return MomoQueryResponse.fromJson(data);
     } else {
       final Map<String, dynamic> jsonBody = json.decode(response.body);
       throw Exception(jsonBody['message'] ?? 'Lỗi khi truy vấn giao dịch');

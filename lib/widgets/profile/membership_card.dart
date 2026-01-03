@@ -15,7 +15,7 @@ class MembershipCard extends StatelessWidget {
       case MemberTier.silver:
         return const Color(0xFFC0C0C0);
       case MemberTier.gold:
-        return const Color(0xFFFFD700);
+        return const Color.fromARGB(255, 242, 209, 24);
       case MemberTier.diamond:
         return const Color(0xFFB9F2FF);
     }
