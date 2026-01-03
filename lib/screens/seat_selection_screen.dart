@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/seat.dart';
-import '../models/seattype.dart';
+import '../models/cinema/seat.dart';
+import '../models/cinema/seattype.dart';
 import '../services/seat_service.dart';
 import '../services/seattype_service.dart';
 import '../widgets/seat/sticky_header.dart';

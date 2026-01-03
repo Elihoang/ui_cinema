@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../models/product.dart';
+import '../models/product/product.dart';
 
 class ProductService {
   static final String baseUrl =

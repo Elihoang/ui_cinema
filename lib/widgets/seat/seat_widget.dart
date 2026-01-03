@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/seat.dart';
+import '../../models/cinema/seat.dart';
 
 class SeatWidget extends StatelessWidget {
   final Seat seat;

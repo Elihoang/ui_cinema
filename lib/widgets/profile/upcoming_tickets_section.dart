@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../models/eticket.dart';
+import '../../models/ticket/my_ticket_dto.dart';
 import 'profile_upcoming_ticket.dart';
 
 class UpcomingTicketsSection extends StatefulWidget {
-  final List<ETicket> tickets;
+  final List<MyTicketDto> tickets;
 
   const UpcomingTicketsSection({super.key, required this.tickets});
 
@@ -83,10 +83,12 @@ class _UpcomingTicketsSectionState extends State<UpcomingTicketsSection> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: widget.tickets
-                  .map((ticket) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: ProfileUpcomingTicket(ticket: ticket),
-                      ))
+                  .map(
+                    (ticket) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: ProfileUpcomingTicket(ticket: ticket),
+                    ),
+                  )
                   .toList(),
             ),
           )
@@ -98,7 +100,9 @@ class _UpcomingTicketsSectionState extends State<UpcomingTicketsSection> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: widget.tickets.length,
               itemBuilder: (context, index) => Padding(
-                padding: EdgeInsets.only(right: index < widget.tickets.length - 1 ? 12 : 0),
+                padding: EdgeInsets.only(
+                  right: index < widget.tickets.length - 1 ? 12 : 0,
+                ),
                 child: SizedBox(
                   width: 320,
                   child: ProfileUpcomingTicket(ticket: widget.tickets[index]),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/product.dart';
+import '../../models/product/product.dart';
 import 'quantity_stepper.dart';
 
 class ProductItemCard extends StatelessWidget {

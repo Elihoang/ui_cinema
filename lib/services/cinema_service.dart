@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../models/cinema.dart';
-import '../models/cinema_movies_with_showtimes_response.dart';
+import '../models/cinema/cinema.dart';
+import '../models/cinema/cinema_movies_with_showtimes_response.dart';
 import '../models/cinema/cinema_brand_response.dart';
 
 class CinemaService {

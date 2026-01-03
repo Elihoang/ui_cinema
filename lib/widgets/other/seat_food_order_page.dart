@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import '../../models/seat_food_order.dart';
-import '../../models/product.dart';
+import '../../models/order/seat_food_order.dart';
+import '../../models/product/product.dart';
 import '../../services/seat_food_order_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 

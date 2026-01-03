@@ -1,6 +1,6 @@
 import 'package:fe_cinema_mobile/utils/movie_category_parser.dart';
 
-import '../enums/movie_category.dart';
+import '../../enums/movie_category.dart';
 
 class Movie {
   final String id;

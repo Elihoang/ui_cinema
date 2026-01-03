@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../models/movie_cinema_showtime_response.dart';
+import '../../models/movie/movie_cinema_showtime_response.dart';
 import '../../screens/cinema_showtime_list_screen.dart';
 import '../../screens/seat_selection_screen.dart';
 import '../../services/movie_service.dart';
@@ -77,10 +77,7 @@ class _ShowtimesSectionState extends State<ShowtimesSection> {
           dayOfWeek = '';
       }
 
-      _dates.add({
-        'day': dayOfWeek,
-        'date': date.day.toString(),
-      });
+      _dates.add({'day': dayOfWeek, 'date': date.day.toString()});
     }
   }
 
@@ -94,7 +91,9 @@ class _ShowtimesSectionState extends State<ShowtimesSection> {
       final selectedDate = _dateObjects[_selectedDateIndex];
       final dateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
 
-      print('Fetching showtimes for movieId: ${widget.movieId}, date: $dateStr');
+      print(
+        'Fetching showtimes for movieId: ${widget.movieId}, date: $dateStr',
+      );
 
       final response = await MovieService.fetchCinemaShowtimesByMovie(
         widget.movieId,
@@ -106,7 +105,9 @@ class _ShowtimesSectionState extends State<ShowtimesSection> {
         print('First cinema: ${response.cinemas.first.cinemaName}');
         print('Showtimes count: ${response.cinemas.first.showtimes.length}');
         if (response.cinemas.first.showtimes.isNotEmpty) {
-          print('First showtime: ${response.cinemas.first.showtimes.first.startTime}');
+          print(
+            'First showtime: ${response.cinemas.first.showtimes.first.startTime}',
+          );
         }
       }
 
@@ -220,7 +221,11 @@ class _ShowtimesSectionState extends State<ShowtimesSection> {
                       ),
                     ),
                     SizedBox(width: 4),
-                    Icon(Icons.arrow_forward, color: Color(0xFFEC1337), size: 16),
+                    Icon(
+                      Icons.arrow_forward,
+                      color: Color(0xFFEC1337),
+                      size: 16,
+                    ),
                   ],
                 ),
               ),
@@ -299,10 +304,7 @@ class _ShowtimesSectionState extends State<ShowtimesSection> {
               child: Center(
                 child: Text(
                   'Không có suất chiếu nào',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ),
             )
@@ -373,11 +375,13 @@ class _ShowtimesSectionState extends State<ShowtimesSection> {
                       spacing: 12,
                       runSpacing: 12,
                       children: showtimes.map((showtime) {
-                        final time = DateFormat('HH:mm')
-                            .format(showtime.startTime.toLocal());
-                        final date = DateFormat('dd/MM/yyyy')
-                            .format(showtime.startTime.toLocal());
-                        
+                        final time = DateFormat(
+                          'HH:mm',
+                        ).format(showtime.startTime.toLocal());
+                        final date = DateFormat(
+                          'dd/MM/yyyy',
+                        ).format(showtime.startTime.toLocal());
+
                         return GestureDetector(
                           onTap: showtime.isActive
                               ? () {
@@ -431,7 +435,7 @@ class _ShowtimesSectionState extends State<ShowtimesSection> {
                 ),
               );
             }).toList(),
-          
+
           // Add bottom padding for scrolling
           const SizedBox(height: 100),
         ],

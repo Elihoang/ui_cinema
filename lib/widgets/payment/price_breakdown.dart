@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/booking.dart';
+import '../../models/ticket/booking.dart';
 
 class PriceBreakdown extends StatelessWidget {
   final BookingInfo booking;

@@ -1,4 +1,4 @@
-import 'showtime.dart';
+import '../cinema/showtime.dart';
 
 class MovieCinemaShowtimeResponse {
   final String movieId;

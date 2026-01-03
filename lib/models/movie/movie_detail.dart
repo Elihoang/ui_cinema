@@ -1,6 +1,6 @@
 import 'actor.dart';
-import 'review/movie_review.dart';
-import '../enums/movie_category.dart';
+import '../review/movie_review.dart';
+import '../../enums/movie_category.dart';
 
 class MovieDetail {
   final String id;

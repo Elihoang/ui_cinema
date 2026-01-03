@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/seat.dart';
+import '../../models/cinema/seat.dart';
 import 'seat_widget.dart';
 
 class SeatGrid extends StatelessWidget {

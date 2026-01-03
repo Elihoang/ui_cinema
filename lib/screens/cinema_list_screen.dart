@@ -3,7 +3,7 @@ import '../widgets/cinemalist/cinema_header.dart';
 import '../widgets/cinemalist/cinema_search_bar.dart';
 import '../widgets/cinemalist/cinema_filter_chips.dart';
 import '../widgets/cinemalist/cinema_card.dart';
-import '../models/cinema.dart';
+import '../models/cinema/cinema.dart';
 import '../services/cinema_service.dart';
 import 'package:geolocator/geolocator.dart';
 

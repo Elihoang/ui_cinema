@@ -57,4 +57,36 @@ class MovieReviewService {
       throw Exception('Failed to load reviews');
     }
   }
+
+  Future<MovieReview> updateReview(
+    String reviewId,
+    int rating,
+    String comment,
+  ) async {
+    final token = await _tokenStorage.getAccessToken();
+    if (token == null) {
+      throw Exception('User is not authenticated');
+    }
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/MovieReviews/$reviewId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'rating': rating, 'comment': comment}),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonBody = jsonDecode(response.body);
+      final data = jsonBody['data'];
+      return MovieReview.fromJson(data);
+    } else if (response.statusCode == 401) {
+      await _tokenStorage.clear();
+      throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+    } else {
+      final jsonBody = jsonDecode(response.body);
+      throw Exception(jsonBody['message'] ?? 'Lỗi khi cập nhật đánh giá');
+    }
+  }
 }

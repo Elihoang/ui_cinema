@@ -1,10 +1,11 @@
 // widgets/movie_detail_content.dart
 import 'package:flutter/material.dart';
 
-import '../../models/movie_detail.dart';
 import 'cast_section.dart';
 import 'rating_section.dart';
 import 'showtimes_section.dart';
+import 'rating_section.dart';
+import '../../models/movie/movie_detail.dart';
 import 'synopsis_section.dart';
 
 class MovieDetailContent extends StatelessWidget {

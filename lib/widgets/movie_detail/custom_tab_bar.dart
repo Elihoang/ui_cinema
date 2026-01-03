@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/movie_detail.dart';
+import '../../models/movie/movie_detail.dart';
 
 class CustomTabBarDelegate extends SliverPersistentHeaderDelegate {
   final int selectedIndex;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/member_tier.dart';
-import '../../models/member_point.dart';
+import '../../models/user/member_tier.dart';
+import '../../models/user/member_point.dart';
 import '../../services/membership_service.dart';
 
 class MembershipTierProgress extends StatefulWidget {
@@ -19,25 +19,25 @@ class _MembershipTierProgressState extends State<MembershipTierProgress> {
   @override
   void initState() {
     super.initState();
-    print(
-      '[MembershipTierProgress] Widget initialized for tier: ${widget.memberPoint.currentTier.displayName}',
-    );
     _loadTierConfigs();
   }
 
   Future<void> _loadTierConfigs() async {
     try {
-      print('[MembershipTierProgress] Loading tier configs...');
       final configs = await MembershipService.getAllTiers();
-      print('[MembershipTierProgress] Loaded ${configs.length} tier configs');
       // Sort by minPoints ascending
       configs.sort((a, b) => a.minPoints.compareTo(b.minPoints));
+
+      // Kiểm tra mounted trước khi gọi setState
+      if (!mounted) return;
+
       setState(() {
         _tierConfigs = configs;
         _isLoading = false;
       });
     } catch (e) {
-      print('[MembershipTierProgress] Error loading tier configs: $e');
+      if (!mounted) return;
+
       setState(() {
         _isLoading = false;
       });
@@ -52,7 +52,7 @@ class _MembershipTierProgressState extends State<MembershipTierProgress> {
       case MemberTier.silver:
         return const Color(0xFFC0C0C0);
       case MemberTier.gold:
-        return const Color.fromARGB(255, 255, 215, 0);
+        return const Color.fromARGB(255, 225, 195, 27);
       case MemberTier.diamond:
         return const Color.fromARGB(255, 5, 140, 223);
     }

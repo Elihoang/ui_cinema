@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/movie.dart';
+import '../models/movie/movie.dart';
 import '../services/movie_service.dart';
 import '../widgets/movielist/movie_list_search_bar.dart';
 import '../widgets/movielist/movie_list_filter_chips.dart';

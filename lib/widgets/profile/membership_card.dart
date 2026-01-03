@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/member_point.dart';
-import '../../models/member_tier.dart';
+import '../../models/user/member_point.dart';
+import '../../models/user/member_tier.dart';
 
 class MembershipCard extends StatelessWidget {
   final MemberPoint? memberPoint;

@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../models/member_tier.dart';
-import '../models/member_point.dart';
+import '../models/user/member_tier.dart';
+import '../models/user/member_point.dart';
 
 class MembershipService {
   static final String baseUrl =

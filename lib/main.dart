@@ -26,7 +26,7 @@ class CinemaxApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cinemax Hà Nội',
+      title: 'Cinemax MHH',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -38,7 +38,7 @@ class CinemaxApp extends StatelessWidget {
           surface: Color(0xFF3a1c20),
           onSurface: Colors.white,
         ),
-        fontFamily: 'DuyHoang', // Font chữ từ file gốc của bạn
+        fontFamily: 'Roboto', // Font chữ từ file gốc của bạn
         textTheme: const TextTheme(
           headlineLarge: TextStyle(
             fontSize: 24,

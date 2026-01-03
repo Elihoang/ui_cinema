@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../models/eticket.dart';
+import '../../models/ticket/my_ticket_dto.dart';
 import '../my_ticket/history_ticket_item.dart';
 import 'big_upcoming_ticket.dart';
 import 'compact_upcoming_ticket.dart';
 
 class UpcomingTab extends StatelessWidget {
-  final List<ETicket> tickets; // vé sắp tới
-  final List<ETicket> recentHistory; // thêm danh sách gần đây
+  final List<MyTicketDto> tickets; // vé sắp tới
+  final List<MyTicketDto> recentHistory; // thêm danh sách gần đây
 
   const UpcomingTab({
     super.key,
@@ -23,10 +23,14 @@ class UpcomingTab extends StatelessWidget {
         // Phần sắp tới
         if (tickets.isEmpty)
           const Center(
-              child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Chưa có vé sắp tới', style: TextStyle(color: Colors.grey)),
-          ))
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Chưa có vé sắp tới',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          )
         else ...[
           BigUpcomingTicket(ticket: tickets[0]),
           for (int i = 1; i < tickets.length; i++)
@@ -45,8 +49,7 @@ class UpcomingTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          for (var ticket in recentHistory)
-            HistoryTicketItem(ticket: ticket),
+          for (var ticket in recentHistory) HistoryTicketItem(ticket: ticket),
         ],
       ],
     );

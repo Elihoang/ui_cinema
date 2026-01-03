@@ -1,4 +1,4 @@
-import '../cinema.dart';
+import '../cinema/cinema.dart';
 
 class CinemaBrandResponse {
   final String brandName;

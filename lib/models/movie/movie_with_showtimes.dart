@@ -1,5 +1,5 @@
 import 'movie.dart';
-import 'showtime.dart';
+import '../cinema/showtime.dart';
 
 class MovieWithShowtimes {
   final Movie movie;

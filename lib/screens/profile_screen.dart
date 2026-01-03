@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../models/eticket.dart';
-import '../models/user.dart';
-import '../models/member_point.dart';
-import '../models/member_tier.dart';
+import '../models/user/member_point.dart';
+import '../models/ticket/my_ticket_dto.dart';
+import '../models/user/user.dart';
+import '../models/user/member_tier.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/my_vouchers_screen.dart';
+import '../screens/order_history_screen.dart';
 import '../screens/voucher_store_screen.dart';
 import '../services/auth/token_storage.dart';
 import '../services/ticket_service.dart';
@@ -33,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isLoading = true;
   String? error;
   bool biometricsEnabled = true;
-  List<ETicket> upcomingTickets = [];
+  List<MyTicketDto> upcomingTickets = [];
   bool loadingTickets = false;
   int watchedMoviesCount = 0;
 
@@ -154,20 +155,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     print('[ProfileScreen] Loading upcoming tickets...');
     setState(() => loadingTickets = true);
     try {
-      final tickets = await TicketService.fetchUpcomingTickets();
-      print('[ProfileScreen] Fetched ${tickets.length} upcoming tickets');
+      // Sử dụng API tối ưu - chỉ 1 request
+      final allTickets = await TicketService.fetchMyTicketsOptimized();
+      print('[ProfileScreen] API returned ${allTickets.length} tickets');
 
-      // Lấy tất cả vé để đếm số phim đã xem
-      final allTickets = await TicketService.fetchMyTickets();
       final now = DateTime.now();
-      final watchedTickets = allTickets
-          .where((ticket) => ticket.isUsed || ticket.showtime.isBefore(now))
-          .toList();
+
+      // Lọc vé sắp chiếu và vé đã xem
+      final upcoming =
+          allTickets
+              .where((t) => !t.isUsed && t.showtimeStart.isAfter(now))
+              .toList()
+            ..sort((a, b) => a.showtimeStart.compareTo(b.showtimeStart));
+
+      final watched = allTickets.where(
+        (t) => t.isUsed || t.showtimeStart.isBefore(now),
+      );
 
       if (mounted) {
         setState(() {
-          upcomingTickets = tickets.take(5).toList(); // Lấy tối đa 5 vé
-          watchedMoviesCount = watchedTickets.length;
+          upcomingTickets = upcoming.take(5).toList();
+          watchedMoviesCount = watched.length;
           loadingTickets = false;
           // Cập nhật User với số phim đã xem
           if (user != null) {
@@ -180,7 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
         });
         print(
-          '[ProfileScreen] Updated state with ${upcomingTickets.length} tickets and $watchedMoviesCount watched',
+          '[ProfileScreen] Updated: ${upcomingTickets.length} upcoming, $watchedMoviesCount watched',
         );
       }
     } catch (e) {
@@ -412,9 +420,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (memberPoint != null) ...[
               Builder(
                 builder: (context) {
-                  print(
-                    '[ProfileScreen] Rendering MembershipTierProgress for ${memberPoint!.currentTier.displayName}',
-                  );
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: MembershipTierProgress(memberPoint: memberPoint!),
@@ -424,9 +429,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ] else ...[
               Builder(
                 builder: (context) {
-                  print(
-                    '[ProfileScreen] memberPoint is NULL - not showing tier progress',
-                  );
                   return const SizedBox.shrink();
                 },
               ),
@@ -521,10 +523,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {},
                     ),
                   AccountMenuItem(
-                    icon: Icons.badge_outlined,
+                    icon: Icons.receipt_long_outlined,
                     iconColor: const Color(0xFF34D399),
-                    title: 'ID: ${u.id}',
-                    onTap: () {},
+                    title: 'Lịch sử giao dịch',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const OrderHistoryScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

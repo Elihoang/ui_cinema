@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/user_voucher.dart';
-import '../../models/booking.dart';
-import '../../models/voucher.dart';
+import '../../models/user/user_voucher.dart';
+import '../../models/ticket/booking.dart';
+import '../../models/user/voucher.dart';
 
 class VoucherBottomSheet extends StatelessWidget {
   final List<UserVoucher> vouchers;

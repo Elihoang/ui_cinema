@@ -15,6 +15,7 @@ class OrderService {
     required List<OrderTicketItemDto> tickets,
     List<OrderProductItemDto> products = const [],
     String? paymentMethod,
+    String? note, // Ghi chú: SEAT-ORDER hoặc PRO-ORDER
     String? token,
   }) async {
     final headers = {
@@ -27,11 +28,13 @@ class OrderService {
       'tickets': tickets.map((t) => t.toJson()).toList(),
       'products': products.map((p) => p.toJson()).toList(),
       'paymentMethod': paymentMethod,
+      'note': note,
     });
 
     // Debug log
     print('===== ORDER SERVICE DEBUG =====');
     print('UserId param: $userId');
+    print('Note: $note');
     print('Request body: $body');
     print('===============================');
 
@@ -235,6 +238,7 @@ class OrderResponseDto {
   final String? userVoucherId;
   final String status;
   final String? paymentMethod;
+  final String? note; // [ORDER], [PRO-ORDER], [SEAT-ORDER]
   final DateTime createdAt;
   final DateTime? expireAt;
 
@@ -247,6 +251,7 @@ class OrderResponseDto {
     this.userVoucherId,
     required this.status,
     this.paymentMethod,
+    this.note,
     required this.createdAt,
     this.expireAt,
   });
@@ -265,6 +270,7 @@ class OrderResponseDto {
       userVoucherId: json['userVoucherId'] as String?,
       status: json['status'] as String,
       paymentMethod: json['paymentMethod'] as String?,
+      note: json['note'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       expireAt: json['expireAt'] != null
           ? DateTime.parse(json['expireAt'] as String)

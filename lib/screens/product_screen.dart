@@ -1,11 +1,13 @@
 // screens/product_screen.dart (thay thế toàn bộ file cũ)
 import 'package:flutter/material.dart';
-import '../models/product.dart';
+import '../models/product/product.dart';
+import '../models/order/product_order.dart';
 import '../services/product_service.dart'; // Đổi đường dẫn nếu cần
 import '../widgets/product/product_header.dart';
 import '../widgets/product/product_category_chips.dart';
 import '../widgets/product/product_item_card.dart';
 import '../widgets/product/product_bottom_bar.dart';
+import 'product_payment_screen.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -182,10 +184,57 @@ class _ProductScreenState extends State<ProductScreen> {
               totalAmount: totalAmount,
               originalAmount: originalTotalAmount,
               onCheckout: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Đang xử lý thanh toán...'),
-                    backgroundColor: Color(0xFFEC1337),
+                // Validate cart is not empty
+                if (cart.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Vui lòng chọn ít nhất một sản phẩm'),
+                      backgroundColor: Color(0xFFEC1337),
+                    ),
+                  );
+                  return;
+                }
+
+                // Build cart items from cart map
+                final cartItems = cart.entries
+                    .map((entry) {
+                      final product = allProducts.firstWhere(
+                        (p) => p.id == entry.key,
+                        orElse: () => ProductItem(
+                          id: '',
+                          name: '',
+                          price: 0,
+                          category: '',
+                          isActive: false,
+                        ),
+                      );
+                      return ProductCartItem(
+                        product: product,
+                        quantity: entry.value,
+                      );
+                    })
+                    .where((item) => item.product.id.isNotEmpty)
+                    .toList();
+
+                if (cartItems.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Giỏ hàng trống'),
+                      backgroundColor: Color(0xFFEC1337),
+                    ),
+                  );
+                  return;
+                }
+
+                // Create ProductOrderInfo
+                final orderInfo = ProductOrderInfo(items: cartItems);
+
+                // Navigate to payment screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ProductPaymentScreen(order: orderInfo),
                   ),
                 );
               },

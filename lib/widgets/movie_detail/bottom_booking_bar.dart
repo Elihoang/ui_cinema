@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/movie.dart';
+import '../../models/movie/movie.dart';
 import '../../screens/cinema_showtime_list_screen.dart';
 import '../../extensions/movie_category_extension.dart'; // Import extension .vi
 
