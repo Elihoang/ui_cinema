@@ -1,6 +1,6 @@
 import 'package:fe_cinema_mobile/utils/formatDate.dart';
 import 'package:flutter/material.dart';
-import '../../models/movie/movie.dart';
+import '../../models/movie.dart';
 import '../../screens/movie_detail_screen.dart';
 import '../../extensions/movie_category_extension.dart';
 import '../../services/movie_reminder_service.dart';
