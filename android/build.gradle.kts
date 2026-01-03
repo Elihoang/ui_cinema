@@ -10,7 +10,23 @@ val newBuildDir: Directory =
         .dir("../../build")
         .get()
 rootProject.layout.buildDirectory.value(newBuildDir)
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // ⭐ BẮT BUỘC cho Firebase
+        classpath("com.google.gms:google-services:4.4.2")
+    }
+}
 
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)

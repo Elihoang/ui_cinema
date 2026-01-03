@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "765038154222",
+    "project_id": "lowji-fe751",
+    "storage_bucket": "lowji-fe751.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765038154222:android:857ba581e4010467f4beff",
+        "android_client_info": {
+          "package_name": "com.example.fe_cinema_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo9VaPjyFQF_9hb1PKbsqOhdZtRzjpXn0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
