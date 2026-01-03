@@ -52,9 +52,9 @@ class _MembershipTierProgressState extends State<MembershipTierProgress> {
       case MemberTier.silver:
         return const Color(0xFFC0C0C0);
       case MemberTier.gold:
-        return const Color(0xFFFFD700);
+        return const Color.fromARGB(255, 255, 215, 0);
       case MemberTier.diamond:
-        return const Color(0xFF00D9FF);
+        return const Color.fromARGB(255, 5, 140, 223);
     }
   }
 
@@ -357,7 +357,7 @@ class _MembershipTierProgressState extends State<MembershipTierProgress> {
                       const SizedBox(height: 4),
                       Text(
                         nextTierInfo['isMax']
-                            ? 'Bạn đã đạt hạng cao nhất! 🎉'
+                            ? 'Bạn đã đạt hạng cao nhất!'
                             : 'Cần thêm ${nextTierInfo['pointsNeeded']} điểm để lên ${(nextTierInfo['tier'] as MemberTier).displayName}',
                         style: TextStyle(
                           color: nextTierInfo['isMax']

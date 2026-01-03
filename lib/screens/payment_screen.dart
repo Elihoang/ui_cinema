@@ -28,6 +28,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   PaymentMethod _selectedPaymentMethod = PaymentMethod.momo;
   bool _isProcessing = false;
   String? _orderId;
+  String? _requestId;
   final _tokenStorage = TokenStorage();
   Timer? _paymentPollingTimer;
   int _pollingAttempts = 0;
@@ -344,6 +345,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
         return;
       }
 
+      setState(() {
+        _requestId = momoResponse.requestId;
+      });
+
       // Mở ứng dụng Momo hoặc URL thanh toán
       final launched = await PaymentService.openPaymentUrl(
         momoResponse.deeplink,
@@ -442,8 +447,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     try {
       final token = await _tokenStorage.getAccessToken();
+      if (_requestId == null) return;
+
       final queryResponse = await PaymentService.queryTransaction(
         _orderId!,
+        requestId: _requestId!,
         token: token,
       );
 
@@ -469,8 +477,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     try {
       final token = await _tokenStorage.getAccessToken();
+      if (_requestId == null) {
+        _showErrorDialog('Thiếu thông tin giao dịch (RequestId)');
+        return;
+      }
+
       final queryResponse = await PaymentService.queryTransaction(
         _orderId!,
+        requestId: _requestId!,
         token: token,
       );
 
