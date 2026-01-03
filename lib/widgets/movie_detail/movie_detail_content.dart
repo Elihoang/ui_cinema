@@ -1,10 +1,11 @@
 // widgets/movie_detail_content.dart
 import 'package:flutter/material.dart';
-import 'synopsis_section.dart';
-import 'cast_section.dart';
-import 'showtimes_section.dart';
-import 'rating_section.dart';
+
 import '../../models/movie_detail.dart';
+import 'cast_section.dart';
+import 'rating_section.dart';
+import 'showtimes_section.dart';
+import 'synopsis_section.dart';
 
 class MovieDetailContent extends StatelessWidget {
   final int tabIndex;
@@ -29,7 +30,14 @@ class MovieDetailContent extends StatelessWidget {
     if (tabIndex == 0) {
       return InfoTabContent(movieDetail: movieDetail);
     } else if (tabIndex == 1) {
-      return const ShowtimesSection();
+      return ShowtimesSection(
+        movieId: movieDetail.id,
+        movieTitle: movieDetail.title,
+        moviePoster: movieDetail.posterUrl,
+        durationMinutes: movieDetail.durationMinutes,
+        category: movieDetail.category,
+        ageLimit: movieDetail.ageLimit,
+      );
     } else {
       // Tab Đánh giá: dùng RatingSection với ListView riêng → scroll thoải mái
       return RatingSection(
