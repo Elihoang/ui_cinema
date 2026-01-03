@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/movie.dart';
+import '../../models/movie/movie.dart';
 import '../../widgets/other/age_badge.dart';
 import '../../extensions/movie_category_extension.dart';
 import '../../utils/formatDate.dart';

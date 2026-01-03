@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import '../../models/cinema.dart';
+import '../../models/cinema/cinema.dart';
 import '../../screens/cinema_detail_screen.dart';
 import '../../utils/distance_utils.dart';
 import '../cinemalist/cinema_movie_list.dart';

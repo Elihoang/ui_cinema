@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../models/movie.dart';
+import '../../models/movie/movie.dart';
 import 'featured_movie_card.dart';
 
 class FeaturedMoviesCarousel extends StatefulWidget {

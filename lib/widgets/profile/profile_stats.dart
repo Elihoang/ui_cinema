@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/user.dart';
-import '../../models/member_point.dart';
+import '../../models/user/user.dart';
+import '../../models/user/member_point.dart';
 
 class ProfileStats extends StatelessWidget {
   final User user;
@@ -19,12 +19,12 @@ class ProfileStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Format points (e.g., 1500 -> "1.5k", 700 -> "700")
+    // Format points với dấu chấm phân cách hàng nghìn (e.g., 8000 -> "8.000")
     String formatPoints(int points) {
-      if (points >= 1000) {
-        return '${(points / 1000).toStringAsFixed(1)}k';
-      }
-      return points.toString();
+      return points.toString().replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (Match m) => '${m[1]}.',
+      );
     }
 
     return Padding(

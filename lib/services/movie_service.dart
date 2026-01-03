@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../models/movie.dart';
-import '../models/movie_detail.dart';
-import '../models/movie_cinema_showtime_response.dart';
+import '../models/movie/movie.dart';
+import '../models/movie/movie_detail.dart';
+import '../models/movie/movie_cinema_showtime_response.dart';
 
 class MovieService {
   static final String baseUrl =

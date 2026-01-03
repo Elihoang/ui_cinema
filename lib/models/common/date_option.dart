@@ -1,4 +1,4 @@
-// lib/models/date_option.dart
+// lib/models/common/date_option.dart
 class DateOption {
   final String label;
   final int day;

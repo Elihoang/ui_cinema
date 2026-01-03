@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../models/seat_food_order.dart';
-import '../models/product.dart';
+import '../models/order/seat_food_order.dart';
+import '../models/product/product.dart';
 
 /// Service for seat food ordering through QR code
 /// Matches endpoints from BE_CinePass.API.Controllers.SeatFoodOrderController

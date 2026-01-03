@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/voucher.dart';
-import '../models/member_point.dart';
-import '../models/member_tier.dart';
+import '../models/user/voucher.dart';
+import '../models/user/member_point.dart';
+import '../models/user/member_tier.dart';
 import '../services/voucher_service.dart';
 import '../services/membership_service.dart';
 import '../services/user_voucher_service.dart';

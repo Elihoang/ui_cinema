@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../models/ticket/booking.dart';
+import '../models/order/product_order.dart';
 import '../models/user/user_voucher.dart';
 import '../models/user/voucher.dart';
-import '../widgets/payment/booking_summary_card.dart';
-import '../widgets/payment/countdown_timer_widget.dart';
+import '../widgets/payment/product_order_summary_card.dart';
+import '../widgets/payment/product_price_breakdown.dart';
 import '../widgets/payment/promo_code_input.dart';
-import '../widgets/payment/price_breakdown.dart';
 import '../widgets/payment/payment_method_item.dart';
 import '../widgets/payment/voucher_bottom_sheet.dart';
 import '../services/order_service.dart';
@@ -15,16 +15,17 @@ import '../services/auth/token_storage.dart';
 import '../services/user_service.dart';
 import '../services/user_voucher_service.dart';
 
-class PaymentScreen extends StatefulWidget {
-  final BookingInfo booking;
+/// Màn hình thanh toán cho đơn hàng chỉ có sản phẩm (không có vé)
+class ProductPaymentScreen extends StatefulWidget {
+  final ProductOrderInfo order;
 
-  const PaymentScreen({super.key, required this.booking});
+  const ProductPaymentScreen({super.key, required this.order});
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  State<ProductPaymentScreen> createState() => _ProductPaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _ProductPaymentScreenState extends State<ProductPaymentScreen> {
   PaymentMethod _selectedPaymentMethod = PaymentMethod.momo;
   bool _isProcessing = false;
   String? _orderId;
@@ -69,80 +70,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
         });
       }
     } catch (e) {
-      print('[PaymentScreen] Error loading vouchers: $e');
+      print('[ProductPaymentScreen] Error loading vouchers: $e');
       setState(() => _isLoadingVouchers = false);
     }
   }
 
   void _calculateFinalAmount() {
     setState(() {
-      _finalAmount = widget.booking.total - _discountAmount;
+      _finalAmount = widget.order.total - _discountAmount;
     });
-  }
-
-  Future<void> _applyVoucherToOrder(UserVoucher voucher) async {
-    if (_orderId == null) return;
-
-    try {
-      final order = await OrderService.applyVoucher(
-        orderId: _orderId!,
-        userVoucherId: voucher.id,
-      );
-      setState(() {
-        _selectedVoucher = voucher;
-        _discountAmount = order.discountAmount ?? 0;
-        _finalAmount = order.finalAmount ?? widget.booking.total;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã áp dụng voucher!'),
-            backgroundColor: Color(0xFF34D399),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lỗi: $e'),
-            backgroundColor: const Color(0xFFEC1337),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _removeVoucherFromOrder() async {
-    if (_orderId == null) return;
-
-    try {
-      await OrderService.removeVoucher(orderId: _orderId!);
-      setState(() {
-        _selectedVoucher = null;
-        _discountAmount = 0;
-        _finalAmount = widget.booking.total;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã xóa voucher'),
-            backgroundColor: Color(0xFF64748B),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lỗi: $e'),
-            backgroundColor: const Color(0xFFEC1337),
-          ),
-        );
-      }
-    }
   }
 
   void _applyPromoCode(String code) {
@@ -160,7 +96,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       if (voucherData.voucherType == VoucherType.percentage) {
         // Percentage discount
         discountPreview =
-            widget.booking.total * (voucherData.discountValue / 100);
+            widget.order.subtotal * (voucherData.discountValue / 100);
         // Apply max discount if specified
         if (voucherData.maxDiscountAmount != null &&
             discountPreview > voucherData.maxDiscountAmount!) {
@@ -174,7 +110,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       setState(() {
         _selectedVoucher = voucher;
         _discountAmount = discountPreview;
-        _finalAmount = widget.booking.total - discountPreview;
+        _finalAmount = widget.order.subtotal - discountPreview;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -196,8 +132,52 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  void _showVoucherSelector() {
+    // Create a fake BookingInfo for voucher selection
+    // We use the order total for voucher calculation
+    final fakeBooking = BookingInfo(
+      movieTitle: 'Đơn hàng sản phẩm',
+      moviePoster: '',
+      cinema: '',
+      hall: '',
+      showtime: '',
+      date: '',
+      seats: [],
+      ticketPrice: 0,
+      comboPrice: widget.order.subtotal,
+      discount: 0,
+      showtimeId: '',
+      seatIds: [],
+      products: [],
+    );
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => VoucherBottomSheet(
+        vouchers: _availableVouchers,
+        booking: fakeBooking,
+        onVoucherSelected: (voucher) {
+          if (voucher.voucher != null) {
+            _applyPromoCode(voucher.voucher!.code);
+          }
+        },
+      ),
+    );
+  }
+
   Future<void> _processPayment() async {
     if (_isProcessing) return;
+
+    // Validate cart
+    if (widget.order.items.isEmpty) {
+      _showErrorDialog('Giỏ hàng trống');
+      return;
+    }
+
+    // Calculate final amount
+    final paymentAmount = _finalAmount > 0 ? _finalAmount : widget.order.total;
 
     // Xác nhận thanh toán
     final confirm = await showDialog<bool>(
@@ -209,7 +189,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           style: TextStyle(color: Colors.white),
         ),
         content: Text(
-          'Thanh toán ${_formatPrice(_finalAmount > 0 ? _finalAmount : widget.booking.total)} qua ${_getPaymentMethodName()}?',
+          'Thanh toán ${_formatPrice(paymentAmount)} qua ${_getPaymentMethodName()}?',
           style: const TextStyle(color: Color(0xFFC9929B)),
         ),
         actions: [
@@ -244,7 +224,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       debugPrint('===== AUTH DEBUG =====');
       debugPrint('UserId: $userId');
       debugPrint('Token: $token');
-      debugPrint('Token length: ${token?.length}');
       debugPrint('======================');
 
       // Kiểm tra user đã đăng nhập
@@ -253,33 +232,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
         return;
       }
 
-      // Bước 1: Tạo đơn hàng
-      final tickets = widget.booking.seatIds
+      // Bước 1: Tạo đơn hàng (chỉ có products, không có tickets)
+      final products = widget.order.items
           .map(
-            (seatId) => OrderTicketItemDto(
-              showtimeId: widget.booking.showtimeId,
-              seatId: seatId,
+            (item) => OrderProductItemDto(
+              productId: item.product.id,
+              quantity: item.quantity,
             ),
           )
           .toList();
 
-      final products = widget.booking.products
-          .map(
-            (p) => OrderProductItemDto(
-              productId: p.productId,
-              quantity: p.quantity,
-            ),
-          )
-          .toList();
-
-      // Tạo note cho đơn hàng vé
-      final seatNames = widget.booking.seats.join(', ');
-      final orderNote =
-          '[ORDER] Ghế: $seatNames | Phim: ${widget.booking.movieTitle}';
+      // Tạo note cho đơn hàng sản phẩm
+      final productNames = widget.order.items
+          .map((item) => '${item.product.name} x${item.quantity}')
+          .join(', ');
+      final orderNote = '[PRO-ORDER] $productNames';
 
       final order = await OrderService.createOrder(
-        userId: userId, // Truyền userId từ token
-        tickets: tickets,
+        userId: userId,
+        tickets: [], // Không có vé
         products: products,
         paymentMethod: _getPaymentMethodName(),
         note: orderNote,
@@ -290,7 +261,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _orderId = order.id;
       });
 
-      // Bước 1.5: Apply voucher nếu có
+      // Bước 2: Apply voucher nếu có
       double finalAmount = order.totalAmount;
       if (_selectedVoucher != null) {
         try {
@@ -314,9 +285,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         }
       }
 
-      // Bước 2: Tạo thanh toán dựa trên phương thức
+      // Bước 3: Tạo thanh toán dựa trên phương thức
       if (_selectedPaymentMethod == PaymentMethod.momo) {
         await _processMomoPayment(order.id, finalAmount, token);
+      } else if (_selectedPaymentMethod == PaymentMethod.cash) {
+        await _processCashPayment(order.id, finalAmount);
       } else {
         // Các phương thức thanh toán khác
         _showErrorDialog('Phương thức thanh toán này chưa được hỗ trợ');
@@ -336,8 +309,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
     String? token,
   ) async {
     try {
-      final orderInfo =
-          'Thanh toán vé ${widget.booking.movieTitle} - ${widget.booking.seats.join(", ")}';
+      // Build order info for Momo
+      final productNames = widget.order.items
+          .map((item) => '${item.product.name} x${item.quantity}')
+          .join(', ');
+      final orderInfo = 'Thanh toán đồ ăn: $productNames';
 
       final momoResponse = await PaymentService.createMomoPayment(
         orderId: orderId,
@@ -376,6 +352,106 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  /// Xử lý thanh toán tiền mặt - hiển thị mã đơn hàng để khách thanh toán tại quầy
+  Future<void> _processCashPayment(String orderId, double amount) async {
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          backgroundColor: const Color(0xFF33191E),
+          title: const Text(
+            'Đơn hàng đã được tạo!',
+            style: TextStyle(color: Colors.white),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF34D399).withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.receipt_long,
+                  color: Color(0xFF34D399),
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Vui lòng đến quầy thanh toán',
+                style: TextStyle(color: Color(0xFFC9929B), fontSize: 15),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF221013),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFEC1337)),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Mã đơn hàng',
+                      style: TextStyle(color: Color(0xFFC9929B), fontSize: 12),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      orderId.length > 8
+                          ? orderId.substring(0, 8).toUpperCase()
+                          : orderId.toUpperCase(),
+                      style: const TextStyle(
+                        color: Color(0xFFEC1337),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Số tiền: ${_formatPrice(amount)}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEC1337),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: const Text(
+                  'Về trang chủ',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   void _showPaymentInProgressDialog() {
     showDialog(
       context: context,
@@ -409,13 +485,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Kiểm tra trạng thái thanh toán
               _checkPaymentStatus();
             },
             child: const Text('Đã thanh toán'),
           ),
           TextButton(
             onPressed: () {
+              _paymentPollingTimer?.cancel();
               Navigator.of(context).pop();
               Navigator.of(context).pop(); // Quay lại màn hình trước
             },
@@ -520,7 +596,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEC1337),
             ),
-            child: const Text('Đóng'),
+            child: const Text('Đóng', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -544,15 +620,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xFFEC1337),
+                color: Color(0xFF34D399),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.check, color: Colors.white, size: 48),
             ),
             const SizedBox(height: 16),
             const Text(
-              'Vé của bạn đã được đặt thành công',
+              'Đơn hàng của bạn đã được xác nhận',
               style: TextStyle(color: Color(0xFFC9929B)),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Vui lòng đến quầy để nhận đồ ăn',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 13,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -592,25 +677,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return '${price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}đ';
   }
 
-  void _showVoucherSelector() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => VoucherBottomSheet(
-        vouchers: _availableVouchers,
-        booking: widget.booking,
-        onVoucherSelected: (voucher) {
-          if (voucher.voucher != null) {
-            _applyPromoCode(voucher.voucher!.code);
-          }
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final paymentAmount = _finalAmount > 0 ? _finalAmount : widget.order.total;
+
     return Scaffold(
       backgroundColor: const Color(0xFF221013),
       appBar: AppBar(
@@ -641,11 +711,38 @@ class _PaymentScreenState extends State<PaymentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Timer Section
+                // Header info
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: const Center(child: CountdownTimerWidget()),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        const Color(0xFFEC1337).withOpacity(0.1),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.shopping_bag,
+                        color: Color(0xFFEC1337),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Đơn hàng đồ ăn & thức uống',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 Padding(
@@ -653,8 +750,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Booking Summary Card
-                      BookingSummaryCard(booking: widget.booking),
+                      // Order Summary Card
+                      ProductOrderSummaryCard(order: widget.order),
 
                       const SizedBox(height: 24),
 
@@ -666,9 +763,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ),
                           const SizedBox(width: 8),
                           ElevatedButton(
-                            onPressed: _showVoucherSelector,
+                            onPressed: _availableVouchers.isNotEmpty
+                                ? _showVoucherSelector
+                                : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFEC1337),
+                              disabledBackgroundColor: Colors.grey.shade800,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 14,
@@ -677,13 +777,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            child: const Text(
-                              'Chọn',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            child: _isLoadingVouchers
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Chọn',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),
@@ -737,8 +846,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       const SizedBox(height: 24),
 
                       // Price Breakdown
-                      PriceBreakdown(
-                        booking: widget.booking,
+                      ProductPriceBreakdown(
+                        order: widget.order,
                         voucherDiscount: _discountAmount,
                         finalAmount: _finalAmount > 0 ? _finalAmount : null,
                       ),
@@ -756,12 +865,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Payment Method Items
+                      // Payment Method Items - MOMO
                       PaymentMethodItem(
                         method: PaymentMethod.momo,
                         selectedMethod: _selectedPaymentMethod,
                         title: 'Ví MoMo',
-                        subtitle: 'Liên kết nhanh',
+                        subtitle: 'Thanh toán qua ứng dụng',
                         icon: Icons.account_balance_wallet,
                         iconColor: const Color(0xFFA50064),
                         onTap: () {
@@ -772,7 +881,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Chỉ hiển thị MOMO cho thanh toán vé xem phim
+                      // Payment Method Items - CASH (chỉ có ở Product Payment)
+                      PaymentMethodItem(
+                        method: PaymentMethod.cash,
+                        selectedMethod: _selectedPaymentMethod,
+                        title: 'Tiền mặt',
+                        subtitle: 'Thanh toán tại chỗ',
+                        icon: Icons.payments_outlined,
+                        iconColor: const Color(0xFF22C55E),
+                        onTap: () {
+                          setState(() {
+                            _selectedPaymentMethod = PaymentMethod.cash;
+                          });
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -780,7 +902,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ),
 
-          // StickyColor.fromARGB(255, 198, 198, 198)on
+          // Sticky Bottom Button
           Positioned(
             left: 0,
             right: 0,
@@ -796,9 +918,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
               child: SafeArea(
                 top: false,
                 child: ElevatedButton(
-                  onPressed: _processPayment,
+                  onPressed: _isProcessing ? null : _processPayment,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFEC1337),
+                    disabledBackgroundColor: Colors.grey.shade800,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -807,20 +930,42 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     elevation: 8,
                     shadowColor: const Color(0xFFEC1337).withOpacity(0.3),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.lock_outline, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Thanh toán ${_formatPrice(_finalAmount > 0 ? _finalAmount : widget.booking.total)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  child: _isProcessing
+                      ? const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              'Đang xử lý...',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.lock_outline, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Thanh toán ${_formatPrice(paymentAmount)}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ),

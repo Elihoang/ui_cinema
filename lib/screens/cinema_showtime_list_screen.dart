@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
-import '../models/movie_cinema_showtime_response.dart';
+import '../models/movie/movie_cinema_showtime_response.dart';
 import '../services/movie_service.dart';
 import '../services/cinema_service.dart';
 import '../utils/distance_utils.dart';

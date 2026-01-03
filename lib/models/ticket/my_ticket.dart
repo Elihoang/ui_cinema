@@ -1,9 +1,9 @@
-// lib/models/my_ticket.dart
+// lib/models/ticket/my_ticket.dart
 
 import 'package:fe_cinema_mobile/enums/movie_category.dart';
 
-import 'cinema.dart';
-import 'movie.dart';
+import '../cinema/cinema.dart';
+import '../movie/movie.dart';
 
 enum MyTicketStatus { upcoming, history }
 

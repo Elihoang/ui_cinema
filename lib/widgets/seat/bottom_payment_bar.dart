@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../models/seat.dart';
-import '../../models/seattype.dart';
-import '../../models/booking.dart';
+import '../../models/cinema/seat.dart';
+import '../../models/cinema/seattype.dart';
+import '../../models/ticket/booking.dart';
 import '../../screens/payment_screen.dart';
 
 class BottomPaymentBar extends StatelessWidget {

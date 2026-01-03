@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/movie.dart';
-import '../../models/movie_detail.dart';
+import '../../models/movie/movie.dart';
+import '../../models/movie/movie_detail.dart';
 import '../../services/movie_service.dart';
 import '../../services/movie_review_service.dart';
 import '../../services/user_service.dart';
@@ -104,13 +104,38 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
   }
 
   Future<void> _handleEditReview(int rating, String comment) async {
-    // Backend chưa hỗ trợ update review
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tính năng chỉnh sửa đánh giá đang được phát triển'),
-        backgroundColor: Colors.orange,
-      ),
-    );
+    if (_currentUserId == null || _movieDetail == null) return;
+
+    try {
+      // Find user review
+      final userReview = _movieDetail!.reviews.firstWhere(
+        (r) => r.userId == _currentUserId,
+        orElse: () => throw Exception('Không tìm thấy bài đánh giá cũ'),
+      );
+
+      // Gọi API update review
+      await _movieReviewService.updateReview(userReview.id, rating, comment);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đánh giá đã được cập nhật!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Refresh movie detail to get updated review
+        await _fetchMovieDetail();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override

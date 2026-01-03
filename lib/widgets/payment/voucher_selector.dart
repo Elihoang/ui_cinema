@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/user_voucher.dart';
+import '../../models/user/user_voucher.dart';
 
 class VoucherSelector extends StatelessWidget {
   final UserVoucher? selectedVoucher;

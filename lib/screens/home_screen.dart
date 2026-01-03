@@ -1,6 +1,6 @@
 import 'package:fe_cinema_mobile/extensions/movie_category_extension.dart';
 import 'package:flutter/material.dart';
-import '../models/movie.dart';
+import '../models/movie/movie.dart';
 import '../services/movie_service.dart';
 import '../screens/movie_list_screen.dart';
 import '../widgets/home/top_app_bar.dart';

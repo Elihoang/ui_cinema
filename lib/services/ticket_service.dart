@@ -1,12 +1,11 @@
-
-
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
-import '../models/eticket.dart';
+import '../models/ticket/my_ticket_dto.dart';
+import '../models/ticket/eticket.dart';
 
 class TicketService {
   static final String baseUrl =
@@ -44,8 +43,50 @@ class TicketService {
     return _decodeUserIdFromToken(token);
   }
 
-  /// LẤY TẤT CẢ VÉ CỦA USER TỪ ORDER DETAIL (Confirmed)
-  /// Không còn gọi API ETickets riêng nữa vì backend chưa generate ETicket ngay
+  /// LẤY TẤT CẢ VÉ CỦA USER BẰNG API MỚI (TỐI ƯU - 1 REQUEST DUY NHẤT)
+  static Future<List<MyTicketDto>> fetchMyTicketsOptimized({
+    bool upcomingOnly = false,
+  }) async {
+    final userId = await _getUserId();
+    if (userId == null) {
+      throw Exception('Chưa đăng nhập hoặc token hết hạn');
+    }
+
+    final headers = await _getHeaders();
+
+    final uri = Uri.parse(
+      '$baseUrl/ETickets/my-tickets/$userId${upcomingOnly ? '?upcomingOnly=true' : ''}',
+    );
+
+    print('===== TICKET SERVICE: Fetching my tickets =====');
+    print('URL: $uri');
+
+    final response = await http.get(uri, headers: headers);
+
+    if (response.statusCode != 200) {
+      throw Exception('Không tải được vé: ${response.statusCode}');
+    }
+
+    final jsonBody = json.decode(response.body);
+    if (!(jsonBody['success'] as bool? ?? false)) {
+      throw Exception(jsonBody['message'] ?? 'Lỗi lấy danh sách vé');
+    }
+
+    final List<dynamic> data = jsonBody['data'] ?? [];
+    print('===== Loaded ${data.length} tickets =====');
+
+    return data.map((e) => MyTicketDto.fromJson(e)).toList();
+  }
+
+  /// LẤY VÉ SẮP CHIẾU (UPCOMING) - TỐI ƯU
+  static Future<List<MyTicketDto>> fetchUpcomingTicketsOptimized() async {
+    return fetchMyTicketsOptimized(upcomingOnly: true);
+  }
+
+  // ============ LEGACY METHODS (giữ lại để tương thích) ============
+
+  /// LẤY TẤT CẢ VÉ CỦA USER TỪ ORDER DETAIL (Confirmed) - LEGACY
+  /// @deprecated Sử dụng fetchMyTicketsOptimized thay thế
   static Future<List<ETicket>> fetchMyTickets() async {
     final userId = await _getUserId();
     if (userId == null) {
@@ -113,7 +154,7 @@ class TicketService {
             for (final j in eTickets) {
               final Map<String, dynamic> et = j as Map<String, dynamic>;
               final ticketCode = et['ticketCode'] as String?;
-              
+
               // Gọi API detail để lấy full data (cinema, screen, seat)
               if (ticketCode != null && ticketCode.isNotEmpty) {
                 final detailResponse = await http.get(
@@ -122,14 +163,15 @@ class TicketService {
                 );
                 if (detailResponse.statusCode == 200) {
                   final detailJson = json.decode(detailResponse.body);
-                  if (detailJson['success'] == true && detailJson['data'] != null) {
+                  if (detailJson['success'] == true &&
+                      detailJson['data'] != null) {
                     allTickets.add(ETicket.fromJson(detailJson['data']));
                     addedReal = true;
                     continue;
                   }
                 }
               }
-              
+
               // Fallback: nếu không lấy được detail, dùng data cơ bản + orderTicket
               final combined = {...et, 'orderTicket': ot};
               allTickets.add(ETicket.fromJson(combined));
@@ -174,13 +216,16 @@ class TicketService {
     return allTickets;
   }
 
-  /// LẤY CHỈ VÉ SẮP CHIẾU (Upcoming)
+  /// LẤY CHỈ VÉ SẮP CHIẾU (Upcoming) - LEGACY
+  /// @deprecated Sử dụng fetchUpcomingTicketsOptimized thay thế
   static Future<List<ETicket>> fetchUpcomingTickets() async {
     final allTickets = await fetchMyTickets();
     final now = DateTime.now();
     return allTickets
         .where((ticket) => !ticket.isUsed && ticket.showtime.isAfter(now))
         .toList()
-      ..sort((a, b) => a.showtime.compareTo(b.showtime)); // Sắp xếp từ gần đến xa
+      ..sort(
+        (a, b) => a.showtime.compareTo(b.showtime),
+      ); // Sắp xếp từ gần đến xa
   }
 }

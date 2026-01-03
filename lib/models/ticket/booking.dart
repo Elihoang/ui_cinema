@@ -51,4 +51,4 @@ class ProductOrderItem {
   double get totalPrice => quantity * unitPrice;
 }
 
-enum PaymentMethod { momo, card, applePay }
+enum PaymentMethod { momo, cash }

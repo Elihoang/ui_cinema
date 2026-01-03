@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/eticket.dart';
+import '../models/ticket/my_ticket_dto.dart';
 import '../services/ticket_service.dart';
 import '../widgets/my_ticket/history_tab.dart';
 import '../widgets/my_ticket/upcoming_tab.dart';
@@ -21,9 +21,9 @@ class MyTicketScreen extends StatefulWidget {
 class _MyTicketScreenState extends State<MyTicketScreen> {
   int tabIndex = 0;
 
-  List<ETicket> allTickets = [];
-  List<ETicket> upcoming = [];
-  List<ETicket> history = [];
+  List<MyTicketDto> allTickets = [];
+  List<MyTicketDto> upcoming = [];
+  List<MyTicketDto> history = [];
 
   bool isLoading = true;
   String? errorMessage;
@@ -41,16 +41,16 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
     });
 
     try {
-      final tickets = await TicketService.fetchMyTickets();
+      final tickets = await TicketService.fetchMyTicketsOptimized();
 
       setState(() {
         allTickets = tickets;
-        upcoming = tickets
-            .where((t) => t.status == ETicketStatus.upcoming)
-            .toList();
-        history = tickets
-            .where((t) => t.status == ETicketStatus.history)
-            .toList();
+        // Vé sắp tới: chưa sử dụng VÀ showtime sau thời điểm hiện tại
+        upcoming = tickets.where((t) => t.isUpcoming).toList()
+          ..sort((a, b) => a.showtimeStart.compareTo(b.showtimeStart));
+        // Lịch sử: đã sử dụng HOẶC showtime đã qua
+        history = tickets.where((t) => !t.isUpcoming).toList()
+          ..sort((a, b) => b.showtimeStart.compareTo(a.showtimeStart));
         isLoading = false;
       });
     } catch (e) {
@@ -111,10 +111,7 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
                   border: Border.all(color: kSurfaceBorder),
                 ),
                 child: Row(
-                  children: [
-                    _tabItem('Sắp tới', 0),
-                    _tabItem('Lịch sử', 1),
-                  ],
+                  children: [_tabItem('Sắp tới', 0), _tabItem('Lịch sử', 1)],
                 ),
               ),
             ),
@@ -131,63 +128,62 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
                       ),
                     )
                   : errorMessage != null
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.wifi_off,
-                                  size: 64,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  errorMessage!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                ElevatedButton.icon(
-                                  onPressed: _loadTickets,
-                                  icon: const Icon(Icons.refresh),
-                                  label: const Text('Thử lại'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: kPrimary,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 32, vertical: 14),
-                                  ),
-                                ),
-                              ],
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.wifi_off,
+                              size: 64,
+                              color: Colors.grey[600],
                             ),
-                          ),
-                        )
-                      : upcoming.isEmpty && history.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'Bạn chưa có vé nào',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 18,
+                            const SizedBox(height: 16),
+                            Text(
+                              errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: _loadTickets,
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Thử lại'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: kPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 14,
                                 ),
                               ),
-                            )
-                          : IndexedStack(
-                              index: tabIndex,
-                              children: [
-                                // Tab Sắp tới
-                                UpcomingTab(
-                                  tickets: upcoming,
-                                  recentHistory: history.take(3).toList(),
-                                ),
-                                // Tab Lịch sử
-                                HistoryTab(tickets: history),
-                              ],
                             ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : upcoming.isEmpty && history.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Bạn chưa có vé nào',
+                        style: TextStyle(color: Colors.grey, fontSize: 18),
+                      ),
+                    )
+                  : IndexedStack(
+                      index: tabIndex,
+                      children: [
+                        // Tab Sắp tới
+                        UpcomingTab(
+                          tickets: upcoming,
+                          recentHistory: history.take(3).toList(),
+                        ),
+                        // Tab Lịch sử
+                        HistoryTab(tickets: history),
+                      ],
+                    ),
             ),
           ],
         ),

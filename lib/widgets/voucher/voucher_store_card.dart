@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../models/voucher.dart';
-import '../../models/member_tier.dart';
+import '../../models/user/voucher.dart';
+import '../../models/user/member_tier.dart';
 
 class VoucherStoreCard extends StatelessWidget {
   final Voucher voucher;

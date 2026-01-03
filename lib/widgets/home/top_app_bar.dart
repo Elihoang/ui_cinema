@@ -54,7 +54,7 @@ class TopAppBarWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       const Text(
-                        'Cinemax Duy Hoàng',
+                        'Cinemax',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

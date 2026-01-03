@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../models/user_voucher.dart';
+import '../models/user/user_voucher.dart';
 
 class UserVoucherService {
   static final String baseUrl =

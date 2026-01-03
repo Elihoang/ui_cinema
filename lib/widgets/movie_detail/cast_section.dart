@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/actor.dart';
+import '../../models/movie/actor.dart';
 
 class CastSection extends StatelessWidget {
   final List<Actor> actors;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/user_voucher.dart';
-import '../models/voucher.dart';
+import '../models/user/user_voucher.dart';
+import '../models/user/voucher.dart';
 import '../services/user_voucher_service.dart';
 import '../services/user_service.dart';
 

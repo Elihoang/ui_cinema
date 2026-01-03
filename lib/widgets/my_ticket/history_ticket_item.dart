@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 
-import '../../models/eticket.dart';
+import '../../models/ticket/my_ticket_dto.dart';
 
 const kSurfaceDark = Color(0xFF33191E);
 const kSurfaceBorder = Color(0xFF482329);
 const kTextSecondary = Color(0xFFC9929B);
 
 class HistoryTicketItem extends StatelessWidget {
-  final ETicket ticket;
+  final MyTicketDto ticket;
   const HistoryTicketItem({super.key, required this.ticket});
 
   @override
@@ -29,13 +29,16 @@ class HistoryTicketItem extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                ticket.movie.posterUrl ?? '',
+                ticket.moviePosterUrl ?? '',
                 width: 80,
                 height: 110,
                 fit: BoxFit.cover,
                 color: Colors.grey.withOpacity(0.6),
                 colorBlendMode: BlendMode.multiply,
-                errorBuilder: (_, __, ___) => Container(color: Colors.grey[800], child: const Icon(Icons.movie, color: Colors.grey)),
+                errorBuilder: (_, __, ___) => Container(
+                  color: Colors.grey[800],
+                  child: const Icon(Icons.movie, color: Colors.grey),
+                ),
               ),
             ),
             const SizedBox(width: 14),
@@ -46,19 +49,33 @@ class HistoryTicketItem extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(ticket.movie.title,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          ticket.movieTitle,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                        child: Text('Đã xem', style: TextStyle(color: kTextSecondary, fontSize: 10)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'Đã xem',
+                          style: TextStyle(color: kTextSecondary, fontSize: 10),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${ticket.timeDisplay}, ${ticket.dateDisplay} • ${ticket.cinema.name}',
+                    '${ticket.timeDisplay}, ${ticket.dateDisplay} • ${ticket.cinemaName}',
                     style: TextStyle(color: kTextSecondary, fontSize: 12),
                   ),
                 ],

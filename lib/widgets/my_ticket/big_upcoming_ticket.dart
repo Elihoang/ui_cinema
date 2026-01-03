@@ -1,9 +1,10 @@
-// lib/widgets/my_ticket/big_upcoming_ticket.dart (nhỏ sửa để hiển thị tốt hơn khi thiếu dữ liệu)
+// lib/widgets/my_ticket/big_upcoming_ticket.dart
 
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../models/eticket.dart';
+import '../../extensions/movie_category_extension.dart';
+import '../../models/ticket/my_ticket_dto.dart';
 import 'dashed_divider.dart';
 
 const kPrimary = Color(0xFFEC1337);
@@ -12,82 +13,133 @@ const kSurfaceBorder = Color(0xFF482329);
 const kTextSecondary = Color(0xFFC9929B);
 
 class BigUpcomingTicket extends StatelessWidget {
-  final ETicket ticket;
-  const BigUpcomingTicket({super.key, required this.ticket});
+  final MyTicketDto ticket;
+  final bool compact;
+  const BigUpcomingTicket({
+    super.key,
+    required this.ticket,
+    this.compact = false,
+  });
 
   String get durationDisplay {
-    final hours = ticket.movie.durationMinutes ~/ 60;
-    final minutes = ticket.movie.durationMinutes % 60;
+    final hours = ticket.movieDurationMinutes ~/ 60;
+    final minutes = ticket.movieDurationMinutes % 60;
     return '${hours}h ${minutes > 0 ? '${minutes}m' : ''}'.trim();
   }
 
   @override
   Widget build(BuildContext context) {
+    final imageHeight = compact ? 140.0 : 210.0;
+    final imageWidth = compact ? 95.0 : 140.0;
+    final contentPadding = compact ? 10.0 : 16.0;
+    final titleFontSize = compact ? 15.0 : 19.0;
+    final cinemaFontSize = compact ? 13.0 : 16.0;
+    final timeFontSize = compact ? 13.0 : 15.0;
+    final bottomPadding = compact ? 10.0 : 16.0;
+    final ticketCodeFontSize = compact ? 14.0 : 18.0;
+    final buttonPaddingH = compact ? 14.0 : 22.0;
+    final buttonPaddingV = compact ? 10.0 : 14.0;
+
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: EdgeInsets.all(compact ? 8 : 16),
       decoration: BoxDecoration(
         color: kSurfaceDark,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: kSurfaceBorder),
         boxShadow: const [
-          BoxShadow(color: Colors.black45, blurRadius: 12, offset: Offset(0, 6))
+          BoxShadow(
+            color: Colors.black45,
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            height: 210,
+            height: imageHeight,
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(16),
+                  ),
                   child: Image.network(
-                    ticket.movie.posterUrl ?? '',
-                    width: 140,
+                    ticket.moviePosterUrl ?? '',
+                    width: imageWidth,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return Container(
-                          color: Colors.grey[800],
-                          child: const Center(child: CircularProgressIndicator(color: kPrimary)));
+                        color: Colors.grey[800],
+                        child: const Center(
+                          child: CircularProgressIndicator(color: kPrimary),
+                        ),
+                      );
                     },
                     errorBuilder: (_, __, ___) => Container(
                       color: Colors.grey[800],
-                      child: const Icon(Icons.movie, color: Colors.grey, size: 50),
+                      child: const Icon(
+                        Icons.movie,
+                        color: Colors.grey,
+                        size: 50,
+                      ),
                     ),
                   ),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(contentPadding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          ticket.movie.title,
-                          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-                          maxLines: 2,
+                          ticket.movieTitle,
+                          style: TextStyle(
+                            fontSize: titleFontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: compact ? 1 : 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: compact ? 2 : 4),
                         Text(
-                          '${ticket.movie.category.toString().split('.').last.isEmpty ? 'Phim' : ticket.movie.category.toString().split('.').last} • $durationDisplay',
-                          style: TextStyle(color: kTextSecondary, fontSize: 13),
+                          '${ticket.category.vi} • $durationDisplay',
+                          style: TextStyle(
+                            color: kTextSecondary,
+                            fontSize: compact ? 11.0 : 13.0,
+                          ),
                         ),
-                        const Spacer(),
+                        if (!compact)
+                          const Spacer()
+                        else
+                          const SizedBox(height: 6),
                         Text(
-                          ticket.cinema.name,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ticket.cinemaName,
+                          style: TextStyle(
+                            fontSize: cinemaFontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${ticket.screenName} • Ghế ${ticket.seatCode}',
+                          style: TextStyle(
+                            color: kTextSecondary,
+                            fontSize: compact ? 11.0 : 14.0,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          ' ${ticket.screenName} • Ghế ${ticket.seatCode}',
-                          style: TextStyle(color: kTextSecondary),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
                           '${ticket.relativeDate}, ${ticket.timeDisplay}',
-                          style: const TextStyle(color: kPrimary, fontWeight: FontWeight.bold, fontSize: 15),
+                          style: TextStyle(
+                            color: kPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: timeFontSize,
+                          ),
                         ),
                       ],
                     ),
@@ -98,17 +150,27 @@ class BigUpcomingTicket extends StatelessWidget {
           ),
           const DashedDivider(),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(bottomPadding),
             child: Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Mã vé', style: TextStyle(color: kTextSecondary, fontSize: 12)),
+                      Text(
+                        'Mã vé',
+                        style: TextStyle(
+                          color: kTextSecondary,
+                          fontSize: compact ? 10.0 : 12.0,
+                        ),
+                      ),
                       Text(
                         ticket.ticketCode,
-                        style: const TextStyle(fontFamily: 'monospace', fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: ticketCodeFontSize,
+                          fontWeight: FontWeight.bold,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -117,9 +179,12 @@ class BigUpcomingTicket extends StatelessWidget {
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: () {
-                    if (ticket.ticketCode.isEmpty || ticket.ticketCode == 'CHƯA PHÁT HÀNH') {
+                    if (ticket.ticketCode.isEmpty ||
+                        ticket.ticketCode == 'CHƯA PHÁT HÀNH') {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Mã QR chưa được phát hành')),
+                        const SnackBar(
+                          content: Text('Mã QR chưa được phát hành'),
+                        ),
                       );
                       return;
                     }
@@ -128,7 +193,13 @@ class BigUpcomingTicket extends StatelessWidget {
                       context: context,
                       builder: (_) => AlertDialog(
                         backgroundColor: kSurfaceDark,
-                        title: const Text('Mã QR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        title: const Text(
+                          'Mã QR',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         content: SizedBox(
                           width: 260,
                           child: Column(
@@ -154,7 +225,10 @@ class BigUpcomingTicket extends StatelessWidget {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('Đóng', style: TextStyle(color: kPrimary)),
+                            child: const Text(
+                              'Đóng',
+                              style: TextStyle(color: kPrimary),
+                            ),
                           ),
                         ],
                       ),
@@ -162,12 +236,24 @@ class BigUpcomingTicket extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kPrimary,
-                    foregroundColor: Colors.white, // make label/icon visible on red
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    foregroundColor:
+                        Colors.white, // make label/icon visible on red
+                    padding: EdgeInsets.symmetric(
+                      horizontal: buttonPaddingH,
+                      vertical: buttonPaddingV,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  icon: const Icon(Icons.qr_code_2, size: 24),
-                  label: const Text('Xem QR', style: TextStyle(fontWeight: FontWeight.bold)),
+                  icon: Icon(Icons.qr_code_2, size: compact ? 20 : 24),
+                  label: Text(
+                    'Xem QR',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: compact ? 12.0 : 14.0,
+                    ),
+                  ),
                 ),
               ],
             ),
