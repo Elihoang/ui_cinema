@@ -1,9 +1,16 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MovieReminderService {
-  static const String baseUrl = 'http://10.0.2.2:5081';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5081';
+    } else {
+      return 'http://10.0.2.2:5081';
+    }
+  }
   final _storage = const FlutterSecureStorage();
 
   Future<String?> _getAccessToken() async {

@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import './layout/main_layout.dart';
 import 'screens/auth/auth_gate.dart';
 import 'providers/notification_provider.dart';
 import 'services/push_notification_service.dart';
 
-// Global navigator key for push navigation
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
   await dotenv.load();
 
-  // Initialize Firebase
-  await Firebase.initializeApp();
+  if (!kIsWeb) {
+    await Firebase.initializeApp();
+  }
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -39,13 +38,12 @@ class CinemaxApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Notification Provider
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
-        title: 'Cinemax HÃ  Ná»™i',
+        title: 'Cinemax',
         debugShowCheckedModeBanner: false,
-        navigatorKey: navigatorKey, // For push notification navigation
+        navigatorKey: navigatorKey,
         theme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.dark,
@@ -56,7 +54,7 @@ class CinemaxApp extends StatelessWidget {
             surface: Color(0xFF3a1c20),
             onSurface: Colors.white,
           ),
-          fontFamily: 'DuyHoang',
+          fontFamily: 'Poppins',
           textTheme: const TextTheme(
             headlineLarge: TextStyle(
               fontSize: 24,
@@ -78,7 +76,6 @@ class CinemaxApp extends StatelessWidget {
   }
 }
 
-// Initialize app with notification setup
 class AppInitializer extends StatefulWidget {
   const AppInitializer({super.key});
 
@@ -87,7 +84,7 @@ class AppInitializer extends StatefulWidget {
 }
 
 class _AppInitializerState extends State<AppInitializer> {
-  final PushNotificationService _pushService = PushNotificationService();
+  PushNotificationService? _pushService;
   bool _isInitialized = false;
 
   @override
@@ -98,15 +95,10 @@ class _AppInitializerState extends State<AppInitializer> {
 
   Future<void> _initialize() async {
     try {
-      // Initialize push notifications
-      await _pushService.initialize();
-
-      // Load initial notifications if user is logged in
-      // You can add authentication check here
-      // if (userIsLoggedIn) {
-      //   await context.read<NotificationProvider>().loadNotifications();
-      //   context.read<NotificationProvider>().startPolling();
-      // }
+      if (!kIsWeb) {
+        _pushService = PushNotificationService();
+        await _pushService!.initialize();
+      }
 
       setState(() {
         _isInitialized = true;
@@ -114,7 +106,7 @@ class _AppInitializerState extends State<AppInitializer> {
     } catch (e) {
       print('Error initializing app: $e');
       setState(() {
-        _isInitialized = true; // Continue anyway
+        _isInitialized = true;
       });
     }
   }
@@ -125,9 +117,7 @@ class _AppInitializerState extends State<AppInitializer> {
       return const Scaffold(
         backgroundColor: Color(0xFF221013),
         body: Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFFec1337),
-          ),
+          child: CircularProgressIndicator(color: Color(0xFFec1337)),
         ),
       );
     }

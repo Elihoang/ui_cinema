@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+
+import '../screens/my_ticket_screen.dart';
+import '../screens/cinema_list_screen.dart';
 import '../screens/product_screen.dart';
+import '../screens/profile_screen.dart';
+import '../screens/auth/login_screen.dart';
+import '../services/user_service.dart';
 
 class SidebarMenu extends StatelessWidget {
   const SidebarMenu({super.key});
@@ -36,7 +42,7 @@ class SidebarMenu extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Cinemax Duy Hoàng',
+                  'Cinemax',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -46,29 +52,84 @@ class SidebarMenu extends StatelessWidget {
             ),
           ),
           // Các mục Menu
-          _buildMenuItem(context, Icons.home, 'Trang chủ', () {}),
-          _buildMenuItem(
-            context,
-            Icons.confirmation_number,
-            'Vé của tôi',
-            () {},
-          ),
-          _buildMenuItem(context, Icons.location_on, 'Rạp chiếu', () {}),
-          _buildMenuItem(
-            context,
-            Icons.fastfood, // hoặc Icons.local_offer
-            'Combo & Đồ ăn',
-            () {
-              Navigator.pop(context); // Đóng drawer trước
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProductScreen()),
-              );
-            },
-          ),
+          _buildMenuItem(context, Icons.home, 'Trang chủ', () {
+            Navigator.pop(context); // Đóng drawer
+            // Nếu không phải đang ở HomeScreen thì push HomeScreen (hoặc xử lý tùy logic app)
+            // Hiện tại Sidebar thường chỉ gọi từ Home nên pop là đủ.
+          }),
+          _buildMenuItem(context, Icons.confirmation_number, 'Vé của tôi', () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MyTicketScreen()),
+            );
+          }),
+          _buildMenuItem(context, Icons.location_on, 'Rạp chiếu', () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CinemaListScreen()),
+            );
+          }),
+          _buildMenuItem(context, Icons.fastfood, 'Combo & Đồ ăn', () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProductScreen()),
+            );
+          }),
           const Divider(color: Colors.white24),
-          _buildMenuItem(context, Icons.settings, 'Cài đặt', () {}),
-          _buildMenuItem(context, Icons.logout, 'Đăng xuất', () {}),
+          _buildMenuItem(context, Icons.person, 'Tài khoản', () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          }),
+          _buildMenuItem(context, Icons.logout, 'Đăng xuất', () async {
+            // Confirm dialog
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: const Color(0xFF221013),
+                title: const Text(
+                  'Đăng xuất',
+                  style: TextStyle(color: Colors.white),
+                ),
+                content: const Text(
+                  'Bạn có chắc muốn đăng xuất?',
+                  style: TextStyle(color: Colors.white70),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: const Text(
+                      'Hủy',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: const Text(
+                      'Đăng xuất',
+                      style: TextStyle(color: Color(0xFFec1337)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+
+            if (confirm == true) {
+              await UserService.logout();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            }
+          }),
         ],
       ),
     );

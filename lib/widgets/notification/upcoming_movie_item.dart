@@ -1,6 +1,6 @@
 import 'package:fe_cinema_mobile/utils/formatDate.dart';
 import 'package:flutter/material.dart';
-import '../../models/movie.dart';
+import '../../models/movie/movie.dart';
 import '../../screens/movie_detail_screen.dart';
 import '../../extensions/movie_category_extension.dart';
 import '../../services/movie_reminder_service.dart';
@@ -27,7 +27,9 @@ class _UpcomingMovieItemState extends State<UpcomingMovieItem> {
 
   Future<void> _checkReminderStatus() async {
     try {
-      final isSubscribed = await _reminderService.getReminderStatus(widget.movie.id);
+      final isSubscribed = await _reminderService.getReminderStatus(
+        widget.movie.id,
+      );
       if (mounted) {
         setState(() {
           _isSubscribed = isSubscribed;
@@ -56,11 +58,15 @@ class _UpcomingMovieItemState extends State<UpcomingMovieItem> {
       String message;
 
       if (_isSubscribed) {
-        success = await _reminderService.unsubscribeFromReminder(widget.movie.id);
+        success = await _reminderService.unsubscribeFromReminder(
+          widget.movie.id,
+        );
         message = success ? 'Đã hủy nhắc nhở' : 'Lỗi khi hủy nhắc nhở';
       } else {
         success = await _reminderService.subscribeToReminder(widget.movie.id);
-        message = success ? 'Chúng tôi sẽ nhắc bạn khi phim ra mắt' : 'Lỗi khi đăng ký nhắc nhở';
+        message = success
+            ? 'Chúng tôi sẽ nhắc bạn khi phim ra mắt'
+            : 'Lỗi khi đăng ký nhắc nhở';
       }
 
       if (mounted) {
@@ -124,14 +130,20 @@ class _UpcomingMovieItemState extends State<UpcomingMovieItem> {
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: widget.movie.posterUrl != null && widget.movie.posterUrl!.isNotEmpty
+                child:
+                    widget.movie.posterUrl != null &&
+                        widget.movie.posterUrl!.isNotEmpty
                     ? Image.network(widget.movie.posterUrl!, fit: BoxFit.cover)
                     : Container(
-                  color: Colors.grey[800],
-                  child: const Center(
-                    child: Icon(Icons.image_not_supported, color: Colors.grey, size: 50),
-                  ),
-                ),
+                        color: Colors.grey[800],
+                        child: const Center(
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey,
+                            size: 50,
+                          ),
+                        ),
+                      ),
               ),
             ),
             const SizedBox(width: 16),
@@ -145,7 +157,10 @@ class _UpcomingMovieItemState extends State<UpcomingMovieItem> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
@@ -163,7 +178,10 @@ class _UpcomingMovieItemState extends State<UpcomingMovieItem> {
                       Expanded(
                         child: Text(
                           widget.movie.category.vi,
-                          style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF6B7280),
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -188,7 +206,10 @@ class _UpcomingMovieItemState extends State<UpcomingMovieItem> {
                   // Description
                   Text(
                     widget.movie.description ?? 'No description available.',
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF9CA3AF),
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -198,9 +219,13 @@ class _UpcomingMovieItemState extends State<UpcomingMovieItem> {
                   Row(
                     children: [
                       Icon(
-                        _isSubscribed ? Icons.notifications_active : Icons.notifications_outlined,
+                        _isSubscribed
+                            ? Icons.notifications_active
+                            : Icons.notifications_outlined,
                         size: 14,
-                        color: _isSubscribed ? const Color(0xFFec1337) : const Color(0xFF9CA3AF),
+                        color: _isSubscribed
+                            ? const Color(0xFFec1337)
+                            : const Color(0xFF9CA3AF),
                       ),
                       const SizedBox(width: 4),
                       TextButton(
@@ -212,21 +237,23 @@ class _UpcomingMovieItemState extends State<UpcomingMovieItem> {
                         ),
                         child: _isLoading
                             ? const SizedBox(
-                          width: 12,
-                          height: 12,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Color(0xFFec1337),
-                          ),
-                        )
+                                width: 12,
+                                height: 12,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFFec1337),
+                                ),
+                              )
                             : Text(
-                          _isSubscribed ? 'Đã nhắc' : 'Nhắc tôi',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: _isSubscribed ? const Color(0xFF4ADE80) : const Color(0xFFec1337),
-                          ),
-                        ),
+                                _isSubscribed ? 'Đã nhắc' : 'Nhắc tôi',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: _isSubscribed
+                                      ? const Color(0xFF4ADE80)
+                                      : const Color(0xFFec1337),
+                                ),
+                              ),
                       ),
                     ],
                   ),
