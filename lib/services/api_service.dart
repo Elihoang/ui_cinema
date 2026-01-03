@@ -1,17 +1,17 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/notification.dart';
 
 class ApiService {
-  // ✅ FIX: Update this to your actual backend URL
-  // Option 1: Use your production/staging server
-  // static const String baseUrl = 'https://api.cinepass.com';
-  // Option 2: For local development (Android emulator)
-  static const String baseUrl = 'http://10.0.2.2:5081';
-
-  // Option 3: For local development (Real device - use your computer's IP)
-  // static const String baseUrl = 'http://192.168.1.100:5081';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:5081';
+    } else {
+      return 'http://10.0.2.2:5081';
+    }
+  }
 
   final _storage = const FlutterSecureStorage();
 
@@ -35,7 +35,9 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.get(
-        Uri.parse('$baseUrl/api/notifications?limit=$limit&unreadOnly=$unreadOnly'),
+        Uri.parse(
+          '$baseUrl/api/notifications?limit=$limit&unreadOnly=$unreadOnly',
+        ),
         headers: headers,
       );
 

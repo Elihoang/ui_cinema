@@ -100,6 +100,11 @@ class UserService {
     return token != null && token.isNotEmpty;
   }
 
+  /// Đăng xuất - Xóa token
+  static Future<void> logout() async {
+    await _storage.delete(key: _kAccessToken);
+  }
+
   /// Lấy toàn bộ thông tin user
   static Future<UserInfo?> getUserInfo() async {
     final token = await _storage.read(key: _kAccessToken);

@@ -1,4 +1,4 @@
-﻿name: fe_cinema_mobile
+name: fe_cinema_mobile
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -23,8 +23,8 @@ dependencies:
   qr_flutter: ^4.1.0
   cupertino_icons: ^1.0.8
   mobile_scanner: ^7.1.4
-  firebase_core: ^2.24.2
-  firebase_messaging: ^14.7.9
+  firebase_core: ^3.9.0
+  firebase_messaging: ^15.1.5
   flutter_local_notifications: ^17.2.1
   shared_preferences: ^2.2.2
   badges: ^3.1.2

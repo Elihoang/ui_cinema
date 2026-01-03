@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../models/ticket/my_ticket_dto.dart';
 import '../models/ticket/eticket.dart';
+import 'user_service.dart';
 
 class TicketService {
   static final String baseUrl =
@@ -20,36 +21,15 @@ class TicketService {
     };
   }
 
-  static String? _decodeUserIdFromToken(String token) {
-    try {
-      final parts = token.split('.');
-      if (parts.length != 3) return null;
-      final payload = json.decode(
-        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
-      );
-      return payload['sub']?.toString() ??
-          payload['nameidentifier']?.toString() ??
-          payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
-              ?.toString();
-    } catch (e) {
-      print('Lỗi decode token: $e');
-      return null;
-    }
-  }
-
-  static Future<String?> _getUserId() async {
-    final token = await _storage.read(key: 'access_token');
-    if (token == null || token.isEmpty) return null;
-    return _decodeUserIdFromToken(token);
-  }
-
   /// LẤY TẤT CẢ VÉ CỦA USER BẰNG API MỚI (TỐI ƯU - 1 REQUEST DUY NHẤT)
   static Future<List<MyTicketDto>> fetchMyTicketsOptimized({
     bool upcomingOnly = false,
   }) async {
-    final userId = await _getUserId();
-    if (userId == null) {
-      throw Exception('Chưa đăng nhập hoặc token hết hạn');
+    // Sử dụng UserService để lấy userId (đã có logic decode token đầy đủ)
+    final userId = await UserService.getUserId();
+    if (userId == null || userId.isEmpty) {
+      print(' TicketService: Không lấy được userId từ token');
+      throw Exception('Vui lòng đăng nhập lại');
     }
 
     final headers = await _getHeaders();
@@ -60,11 +40,20 @@ class TicketService {
 
     print('===== TICKET SERVICE: Fetching my tickets =====');
     print('URL: $uri');
+    print('UserId: $userId');
 
     final response = await http.get(uri, headers: headers);
 
+    print('Response status: ${response.statusCode}');
+
+    if (response.statusCode == 401) {
+      print(' TicketService: Token không hợp lệ hoặc hết hạn (401)');
+      throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại');
+    }
+
     if (response.statusCode != 200) {
-      throw Exception('Không tải được vé: ${response.statusCode}');
+      print(' TicketService: API error - ${response.body}');
+      throw Exception('Không tải được vé (${response.statusCode})');
     }
 
     final jsonBody = json.decode(response.body);
@@ -73,7 +62,7 @@ class TicketService {
     }
 
     final List<dynamic> data = jsonBody['data'] ?? [];
-    print('===== Loaded ${data.length} tickets =====');
+    print('✅ Loaded ${data.length} tickets');
 
     return data.map((e) => MyTicketDto.fromJson(e)).toList();
   }
@@ -88,9 +77,9 @@ class TicketService {
   /// LẤY TẤT CẢ VÉ CỦA USER TỪ ORDER DETAIL (Confirmed) - LEGACY
   /// @deprecated Sử dụng fetchMyTicketsOptimized thay thế
   static Future<List<ETicket>> fetchMyTickets() async {
-    final userId = await _getUserId();
-    if (userId == null) {
-      throw Exception('Chưa đăng nhập hoặc token hết hạn');
+    final userId = await UserService.getUserId();
+    if (userId == null || userId.isEmpty) {
+      throw Exception('Vui lòng đăng nhập lại');
     }
 
     final headers = await _getHeaders();
