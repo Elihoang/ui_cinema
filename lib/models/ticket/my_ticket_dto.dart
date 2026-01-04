@@ -65,7 +65,7 @@ class MyTicketDto {
       movieDurationMinutes: json['movieDurationMinutes'] as int? ?? 0,
       movieCategory: json['movieCategory'] as String?,
       movieAgeLimit: json['movieAgeLimit'] as int?,
-      showtimeStart: DateTime.parse(json['showtimeStart'] as String),
+      showtimeStart: DateTime.parse(json['showtimeStart'] as String).toLocal(),
       showtimeEnd: json['showtimeEnd'] != null
           ? DateTime.parse(json['showtimeEnd'] as String)
           : null,

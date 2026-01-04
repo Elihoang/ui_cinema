@@ -201,7 +201,7 @@ class _CinemaShowtimeListScreenState extends State<CinemaShowtimeListScreen> {
     }
 
     final showtimeSlots = cinema.showtimes.map((showtime) {
-      final time = DateFormat('HH:mm').format(showtime.startTime);
+      final time = DateFormat('HH:mm').format(showtime.startTime.toLocal());
       final price = '${(showtime.basePrice / 1000).toStringAsFixed(0)}k';
 
       return ShowtimeSlot(
