@@ -1,15 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../screens/profile_screen.dart';
+import '../screens/my_ticket_screen.dart';
 
 class NavigationHelper {
   /// Handle notification navigation with separate actionType and actionData
   /// @param actionType: Type of action (e.g., "OpenOrderDetail", "OpenMovieDetail")
   /// @param actionData: JSON string or null with action parameters
   static void handleNotificationAction(
-      BuildContext context,
-      String? actionType, {
-        String? actionData,
-      }) {
+    BuildContext context,
+    String? actionType, {
+    String? actionData,
+  }) {
     // ✅ FIX: Handle null actionType
     if (actionType == null || actionType.isEmpty) {
       print('No action type provided');
@@ -34,18 +36,12 @@ class NavigationHelper {
 
     switch (actionTypeLower) {
       case 'openorderdetail':
-      case '1': // Enum value
-        final orderId = data?['orderId'];
-        if (orderId != null) {
-          print('Navigating to order detail: $orderId');
-          Navigator.pushNamed(
-            context,
-            '/order-detail',
-            arguments: {'orderId': orderId},
-          );
-        } else {
-          print('OrderId not found in actionData');
-        }
+      case '1':
+        print('Navigating to My Tickets screen');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MyTicketScreen()),
+        );
         break;
 
       case 'openmoviedetail':
@@ -100,9 +96,12 @@ class NavigationHelper {
         break;
 
       case 'openpointshistory':
-      case '6': // Enum value
-        print('Navigating to points history');
-        Navigator.pushNamed(context, '/points-history');
+      case '6':
+        print('Navigating to Profile screen');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        );
         break;
 
       case 'opennotificationcenter':
