@@ -16,7 +16,8 @@ class SeatWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAvailable = seat.isAvailable; // Check if seat is available
-    final isBooked = seat.isBooked; // Check if seat is booked
+    final isSold = seat.status == 1; // Sold (confirmed order)
+    final isHolding = seat.status == 2; // Holding (pending order)
     final seatType = seat.seatTypeCode?.toUpperCase() ?? 'NORMAL';
     final isVip = seatType == 'VIP';
     final isCouple = seatType == 'COUPLE';
@@ -30,10 +31,14 @@ class SeatWidget extends StatelessWidget {
     if (isSelected) {
       mainColor = const Color(0xFFec1337);
       armrestColor = const Color(0xFFBB0A27);
-    } else if (isBooked) {
-      // Booked seats - gray with X
+    } else if (isSold) {
+      // Sold seats - DARK gray with X
       mainColor = const Color(0xFF4A4A4A);
       armrestColor = const Color(0xFF2A2A2A);
+    } else if (isHolding) {
+      // Holding seats - ORANGE/YELLOW with timer icon
+      mainColor = const Color(0xFFFF9800); // Orange
+      armrestColor = const Color(0xFFE65100); // Dark orange
     } else if (!seat.isActive) {
       // Inactive seats - gray
       mainColor = const Color(0xFF4A4A4A);
@@ -66,14 +71,19 @@ class SeatWidget extends StatelessWidget {
             isCouple: isCouple,
           ),
           child: Center(
-            child: _buildSeatContent(isAvailable, isBooked, seatType),
+            child: _buildSeatContent(isAvailable, isSold, isHolding, seatType),
           ),
         ),
       ),
     );
   }
 
-  Widget? _buildSeatContent(bool isAvailable, bool isBooked, String seatType) {
+  Widget? _buildSeatContent(
+    bool isAvailable,
+    bool isSold,
+    bool isHolding,
+    String seatType,
+  ) {
     if (isSelected) {
       return Text(
         seat.seatCode,
@@ -85,9 +95,18 @@ class SeatWidget extends StatelessWidget {
       );
     }
 
-    if (isBooked) {
-      // Show X for booked seats
+    // ✅ Sold seats - X icon (dark gray)
+    if (isSold) {
       return Icon(Icons.close, size: 16, color: Colors.white.withOpacity(0.7));
+    }
+
+    // ✅ Holding seats - Timer icon (orange)
+    if (isHolding) {
+      return Icon(
+        Icons.access_time,
+        size: 14,
+        color: Colors.white.withOpacity(0.9),
+      );
     }
 
     if (!isAvailable) {

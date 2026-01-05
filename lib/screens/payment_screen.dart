@@ -322,12 +322,48 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _showErrorDialog('Phương thức thanh toán này chưa được hỗ trợ');
       }
     } catch (e) {
-      _showErrorDialog('Lỗi khi xử lý thanh toán: $e');
+      // ✅ Parse error message để hiển thị thông báo thân thiện
+      String errorMessage = _parseErrorMessage(e.toString());
+      _showErrorDialog(errorMessage);
     } finally {
       setState(() {
         _isProcessing = false;
       });
     }
+  }
+
+  /// Parse error message từ backend để hiển thị thông báo thân thiện
+  String _parseErrorMessage(String errorString) {
+    // Check if error contains specific messages
+    if (errorString.contains('is being held by another user') ||
+        errorString.contains('is already being held')) {
+      return ' Ghế đang được người khác giữ\n\n'
+          'Vui lòng quay lại màn hình chọn ghế và chọn ghế khác.';
+    }
+
+    if (errorString.contains('is already booked') ||
+        errorString.contains('already booked for this showtime')) {
+      return ' Ghế đang được đặt\n\n'
+          'Ghế bạn chọn đã được người khác đặt. Vui lòng chọn ghế khác.';
+    }
+
+    if (errorString.contains('Seat') && errorString.contains('not found')) {
+      return 'Ghế không tồn tại\n\n'
+          'Vui lòng refresh và thử lại.';
+    }
+
+    if (errorString.contains('Showtime') && errorString.contains('not found')) {
+      return ' Suất chiếu không tồn tại\n\n'
+          'Vui lòng chọn suất chiếu khác.';
+    }
+
+    if (errorString.contains('Declined due to general reasons')) {
+      return 'Thanh toán bị từ chối\n\n'
+          'Vui lòng thử lại hoặc liên hệ hỗ trợ.';
+    }
+
+    // Default: hiển thị message gốc
+    return 'Lỗi: ${errorString.replaceAll('Exception:', '').trim()}';
   }
 
   Future<void> _processMomoPayment(
