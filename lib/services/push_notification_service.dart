@@ -18,7 +18,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 class PushNotificationService {
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
   final ApiService _apiService = ApiService();
 
   String? _fcmToken;
@@ -55,7 +55,8 @@ class PushNotificationService {
 
       // Set background message handler
       FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
+        _firebaseMessagingBackgroundHandler,
+      );
     } else {
       print('❌ User declined push notification permission');
     }
@@ -63,14 +64,14 @@ class PushNotificationService {
 
   Future<void> _initializeLocalNotifications() async {
     const AndroidInitializationSettings androidSettings =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     const DarwinInitializationSettings iosSettings =
-    DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
 
     const InitializationSettings settings = InitializationSettings(
       android: androidSettings,
@@ -92,7 +93,8 @@ class PushNotificationService {
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
   }
 
@@ -257,6 +259,18 @@ class PushNotificationService {
     if (_fcmToken != null) {
       await _apiService.unregisterDeviceToken(_fcmToken!);
       _fcmToken = null;
+    }
+  }
+
+  /// Đăng ký lại device token với backend (gọi sau khi đăng nhập)
+  Future<void> registerTokenWithBackend() async {
+    if (_fcmToken == null) {
+      // Lấy lại token nếu chưa có
+      _fcmToken = await _fcm.getToken();
+    }
+
+    if (_fcmToken != null) {
+      await _registerToken(_fcmToken!);
     }
   }
 

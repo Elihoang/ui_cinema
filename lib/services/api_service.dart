@@ -2,15 +2,13 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/notification.dart';
 
 class ApiService {
+  // Sử dụng BASE_URL từ dotenv để hoạt động trên cả emulator và điện thoại thật
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5081';
-    } else {
-      return 'http://10.0.2.2:5081';
-    }
+    return dotenv.env['BASE_URL'] ?? 'http://localhost:5081/api';
   }
 
   final _storage = const FlutterSecureStorage();
@@ -35,9 +33,7 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.get(
-        Uri.parse(
-          '$baseUrl/api/notifications?limit=$limit&unreadOnly=$unreadOnly',
-        ),
+        Uri.parse('$baseUrl/notifications?limit=$limit&unreadOnly=$unreadOnly'),
         headers: headers,
       );
 
@@ -78,7 +74,7 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.get(
-        Uri.parse('$baseUrl/api/notifications/unread-count'),
+        Uri.parse('$baseUrl/notifications/unread-count'),
         headers: headers,
       );
 
@@ -106,7 +102,7 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.put(
-        Uri.parse('$baseUrl/api/notifications/$notificationId/read'),
+        Uri.parse('$baseUrl/notifications/$notificationId/read'),
         headers: headers,
       );
 
@@ -122,7 +118,7 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.put(
-        Uri.parse('$baseUrl/api/notifications/mark-all-read'),
+        Uri.parse('$baseUrl/notifications/mark-all-read'),
         headers: headers,
       );
 
@@ -138,7 +134,7 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.delete(
-        Uri.parse('$baseUrl/api/notifications/$notificationId'),
+        Uri.parse('$baseUrl/notifications/$notificationId'),
         headers: headers,
       );
 
@@ -159,7 +155,7 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.post(
-        Uri.parse('$baseUrl/api/device-tokens'),
+        Uri.parse('$baseUrl/device-tokens'),
         headers: headers,
         body: json.encode({
           'token': token,
@@ -182,7 +178,7 @@ class ApiService {
     try {
       final headers = await _getHeaders();
       final response = await http.delete(
-        Uri.parse('$baseUrl/api/device-tokens/$token'),
+        Uri.parse('$baseUrl/device-tokens/$token'),
         headers: headers,
       );
 
