@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/auth/auth_gate.dart';
 import 'providers/notification_provider.dart';
 import 'services/push_notification_service.dart';
+import 'services/auth/token_storage.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -98,6 +99,19 @@ class _AppInitializerState extends State<AppInitializer> {
       if (!kIsWeb) {
         _pushService = PushNotificationService();
         await _pushService!.initialize();
+
+        // Nếu user đã đăng nhập từ trước, đăng ký device token với backend
+        final token = await TokenStorage().getAccessToken();
+        if (token != null && token.isNotEmpty) {
+          try {
+            await _pushService!.registerTokenWithBackend();
+            debugPrint('✅ Device token registered for existing session');
+          } catch (e) {
+            debugPrint(
+              '❌ Error registering device token for existing session: $e',
+            );
+          }
+        }
       }
 
       setState(() {

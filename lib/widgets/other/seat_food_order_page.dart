@@ -4,6 +4,7 @@ import 'dart:async';
 import '../../models/order/seat_food_order.dart';
 import '../../models/product/product.dart';
 import '../../services/seat_food_order_service.dart';
+import '../../services/user_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Trang order đồ ăn/nước uống từ ghế ngồi trong rạp qua QR code
@@ -207,6 +208,10 @@ class _SeatFoodOrderPageState extends State<SeatFoodOrderPage>
     setState(() => _isOrdering = true);
 
     try {
+      // Lấy userId từ token (nếu đã đăng nhập)
+      final userId = await UserService.getUserId();
+      debugPrint('SeatFoodOrder - UserId: $userId');
+
       final items = _cart.entries.map((entry) {
         return SeatFoodOrderItemDto(
           productId: entry.key,
@@ -222,6 +227,7 @@ class _SeatFoodOrderPageState extends State<SeatFoodOrderPage>
             ? null
             : _noteController.text.trim(),
         paymentMethod: _selectedPaymentMethod,
+        userId: userId, // Lưu ID người thanh toán
       );
 
       final result = await SeatFoodOrderService.createOrder(dto);

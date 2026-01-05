@@ -1,16 +1,14 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MovieReminderService {
+  // Sử dụng BASE_URL từ dotenv để hoạt động trên cả emulator và điện thoại thật
   static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:5081';
-    } else {
-      return 'http://10.0.2.2:5081';
-    }
+    return dotenv.env['BASE_URL'] ?? 'http://localhost:5081/api';
   }
+
   final _storage = const FlutterSecureStorage();
 
   Future<String?> _getAccessToken() async {
@@ -29,7 +27,7 @@ class MovieReminderService {
     try {
       final headers = await _getHeaders();
       final response = await http.post(
-        Uri.parse('$baseUrl/api/movie-reminders/$movieId/subscribe'),
+        Uri.parse('$baseUrl/movie-reminders/$movieId/subscribe'),
         headers: headers,
       );
       return response.statusCode == 200;
@@ -43,7 +41,7 @@ class MovieReminderService {
     try {
       final headers = await _getHeaders();
       final response = await http.delete(
-        Uri.parse('$baseUrl/api/movie-reminders/$movieId/unsubscribe'),
+        Uri.parse('$baseUrl/movie-reminders/$movieId/unsubscribe'),
         headers: headers,
       );
       return response.statusCode == 200;
@@ -57,7 +55,7 @@ class MovieReminderService {
     try {
       final headers = await _getHeaders();
       final response = await http.get(
-        Uri.parse('$baseUrl/api/movie-reminders/$movieId/status'),
+        Uri.parse('$baseUrl/movie-reminders/$movieId/status'),
         headers: headers,
       );
 

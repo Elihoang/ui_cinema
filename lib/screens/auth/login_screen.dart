@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/auth/token_storage.dart';
+import '../../services/push_notification_service.dart';
 import '../../layout/main_layout.dart';
 import 'register_screen.dart';
 
@@ -54,6 +55,14 @@ class _LoginScreenState extends State<LoginScreen> {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
       );
+
+      // ✅ Đăng ký device token với backend sau khi đăng nhập thành công
+      try {
+        final pushService = PushNotificationService();
+        await pushService.registerTokenWithBackend();
+      } catch (e) {
+        debugPrint('Error registering device token after login: $e');
+      }
 
       if (!mounted) return;
       Navigator.of(

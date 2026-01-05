@@ -179,9 +179,10 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
                         UpcomingTab(
                           tickets: upcoming,
                           recentHistory: history.take(3).toList(),
+                          onRefresh: _loadTickets,
                         ),
                         // Tab Lịch sử
-                        HistoryTab(tickets: history),
+                        HistoryTab(tickets: history, onRefresh: _loadTickets),
                       ],
                     ),
             ),
