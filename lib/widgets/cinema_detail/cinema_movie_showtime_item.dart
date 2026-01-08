@@ -10,12 +10,18 @@ class ShowtimeSlotData {
   final String? price;
   final bool isVIP;
   final bool isSoldOut;
+  final String? showtimeId;
+  final String? screenId;
+  final double? basePrice;
 
   ShowtimeSlotData({
     required this.time,
     this.price,
     this.isVIP = false,
     this.isSoldOut = false,
+    this.showtimeId,
+    this.screenId,
+    this.basePrice,
   });
 }
 
