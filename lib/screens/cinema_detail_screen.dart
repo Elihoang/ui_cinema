@@ -11,6 +11,7 @@ import '../widgets/cinema_detail/cinema_date_selector.dart';
 import '../widgets/cinema_detail/cinema_movie_showtime_item.dart';
 import '../utils/movie_category_parser.dart';
 import '../utils/distance_utils.dart';
+import 'seat_selection_screen.dart';
 
 class CinemaDetailScreen extends StatefulWidget {
   final Cinema cinema;
@@ -251,6 +252,9 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
             price: priceStr,
             isVIP: false,
             isSoldOut: !showtime.isActive,
+            showtimeId: showtime.id,
+            screenId: showtime.screenId,
+            basePrice: showtime.basePrice,
           );
         }).toList();
 
@@ -280,11 +284,39 @@ class _CinemaDetailScreenState extends State<CinemaDetailScreen> {
           releaseDate: movie.releaseDate,
           showtimes: showtimeSlots,
           onShowtimeSelected: (time) {
-            // TODO: Navigate to seat selection
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Đã chọn suất chiếu: $time - ${movie.title}'),
-                backgroundColor: const Color(0xFFec1337),
+            // Find the showtime with matching time
+            final selectedShowtime = showtimeSlots.firstWhere(
+              (slot) => slot.time == time,
+              orElse: () => showtimeSlots.first,
+            );
+
+            if (selectedShowtime.showtimeId == null ||
+                selectedShowtime.screenId == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Thông tin suất chiếu không đầy đủ'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              return;
+            }
+
+            // Navigate to seat selection screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SeatSelectionScreen(
+                  screenId: selectedShowtime.screenId!,
+                  showtimeId: selectedShowtime.showtimeId!,
+                  movieTitle: movie.title,
+                  moviePoster: movie.posterUrl,
+                  cinemaName: widget.cinema.name,
+                  showtime: time,
+                  date: DateFormat(
+                    'dd/MM/yyyy',
+                  ).format(availableDates[selectedDateIndex]),
+                  basePrice: selectedShowtime.basePrice ?? 90000,
+                ),
               ),
             );
           },
